@@ -1,0 +1,22 @@
+# System Files
+.DS_Store
+Thumbs.db
+*.log
+
+# IDEs
+.vscode/
+.idea/
+
+# Node
+node_modules/
+
+# Python
+*.pyc
+__pycache__/
+venv/
+env/
+.env
+
+# Build outputs
+dist/
+build/
