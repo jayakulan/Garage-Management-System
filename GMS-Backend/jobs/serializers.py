@@ -18,3 +18,11 @@ class JobCardSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobCard
         fields = '__all__'
+        read_only_fields = ('customer',)
+
+    def create(self, validated_data):
+        # If no customer is provided, default to the request user if not an admin/mechanic creating for someone else
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and not validated_data.get('customer'):
+            validated_data['customer'] = request.user
+        return super().create(validated_data)
