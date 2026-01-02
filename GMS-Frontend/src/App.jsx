@@ -3,9 +3,10 @@ import { AuthProvider } from './context/AuthContext';
 import LandingPage from './LandingPage';
 import Login from './auth/Login';
 import Signup from './auth/Signup';
-import AdminDashboard from './pages/Admin/AdminDashboard';
-import MechanicDashboard from './pages/Mechanic/MechanicDashboard';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import MechanicDashboard from './pages/mechanic/MechanicDashboard';
 import CustomerDashboard from './pages/Customer/CustomerDashboard';
+import ServiceRequest from './pages/customer/ServiceRequest';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/mechanic/dashboard" element={<MechanicDashboard />} />
           <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+          <Route path="/customer/request-service" element={<ServiceRequest />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
