@@ -31,29 +31,40 @@ const BillingManagement = () => {
         }
     };
 
-    const handleGenerateInvoice = async (jobId) => {
-        // This is a placeholder as backend logic for creating invoices needs strict endpoint definition
-        // For now, we assume we check if invoice exists or create one
+    const [generateModal, setGenerateModal] = useState(false);
+    const [selectedJobId, setSelectedJobId] = useState(null);
+    const [laborCost, setLaborCost] = useState('');
+
+    const openGenerateModal = (jobId) => {
+        setSelectedJobId(jobId);
+        setLaborCost(''); // Reset
+        setGenerateModal(true);
+    };
+
+    const submitInvoiceGeneration = async (e) => {
+        e.preventDefault();
         try {
-            // 1. Create Invoice
             const response = await fetch('http://127.0.0.1:8000/api/invoices/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ job: jobId, status: 'UNPAID' }) // Basic creation
+                body: JSON.stringify({
+                    job: selectedJobId,
+                    labor_cost: laborCost,
+                    status: 'UNPAID'
+                })
             });
 
             if (response.ok) {
                 const invoice = await response.json();
-                alert(`Invoice Generated! ID: ${invoice.id}`);
-                // Refresh or redirect to view invoice
+                alert(`Invoice Generated! Total: $${invoice.grand_total}`);
+                setGenerateModal(false);
+                fetchJobs(); // Refresh list to show 'View Invoice' button
             } else {
-                // Check if it failed because it already exists (likely 400 Bad Request if OneToOne unique constraint)
                 const error = await response.json();
-                alert('Could not generate invoice (it might already exist). Check console.');
-                console.log(error);
+                alert('Error creating invoice: ' + JSON.stringify(error));
             }
         } catch (error) {
             console.error(error);
@@ -163,7 +174,7 @@ const BillingManagement = () => {
                                         {/* If Job is READY, show Generate. If COMPLETED, show View Invoice */}
                                         {job.status === 'READY' ? (
                                             <button
-                                                onClick={() => handleGenerateInvoice(job.id)}
+                                                onClick={() => openGenerateModal(job.id)}
                                                 className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-2 rounded font-medium transition-colors"
                                             >
                                                 Generate Invoice
@@ -230,6 +241,44 @@ const BillingManagement = () => {
                                 Close
                             </button>
                         )}
+                    </div>
+                </div>
+            )}
+            {/* Generate Invoice Modal */}
+            {generateModal && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-slate-800 p-8 rounded-xl w-full max-w-sm border border-slate-700 shadow-2xl">
+                        <h3 className="text-xl font-bold mb-4 text-white">Generate Invoice</h3>
+                        <form onSubmit={submitInvoiceGeneration} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-2">Labor Cost ($)</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    required
+                                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white outline-none focus:border-blue-500"
+                                    value={laborCost}
+                                    onChange={(e) => setLaborCost(e.target.value)}
+                                    placeholder="0.00"
+                                />
+                            </div>
+                            <div className="flex gap-4 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setGenerateModal(false)}
+                                    className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg font-medium transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-bold transition-colors"
+                                >
+                                    Confirm
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

@@ -97,9 +97,10 @@ const InventoryManagement = () => {
                             <input type="text" placeholder="Part Name" required className="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white outline-none" value={newPart.name} onChange={e => setNewPart({ ...newPart, name: e.target.value })} />
                             <input type="text" placeholder="SKU" required className="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white outline-none" value={newPart.sku} onChange={e => setNewPart({ ...newPart, sku: e.target.value })} />
                             <textarea placeholder="Description" className="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white outline-none h-24" value={newPart.description} onChange={e => setNewPart({ ...newPart, description: e.target.value })}></textarea>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-3 gap-4">
                                 <input type="number" placeholder="Quantity" required className="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white outline-none" value={newPart.quantity} onChange={e => setNewPart({ ...newPart, quantity: e.target.value })} />
-                                <input type="number" step="0.01" placeholder="Price" required className="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white outline-none" value={newPart.price} onChange={e => setNewPart({ ...newPart, price: e.target.value })} />
+                                <input type="number" step="0.01" placeholder="Cost Price" className="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white outline-none" value={newPart.cost_price} onChange={e => setNewPart({ ...newPart, cost_price: e.target.value })} />
+                                <input type="number" step="0.01" placeholder="Selling Price" required className="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white outline-none" value={newPart.price} onChange={e => setNewPart({ ...newPart, price: e.target.value })} />
                             </div>
                             <div className="flex gap-4 mt-6">
                                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 bg-slate-700 hover:bg-slate-600 py-3 rounded-lg font-medium">Cancel</button>
