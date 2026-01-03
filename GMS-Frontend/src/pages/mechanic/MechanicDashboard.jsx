@@ -36,12 +36,14 @@ const MechanicDashboard = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                // Filter jobs where assigned_mechanic matches current user ID
-                const myJobs = data.filter(job => job.assigned_mechanic === user.user_id);
+                // Filter jobs where assigned_mechanic matches current user ID (ensure type safety)
+                const myJobs = data.filter(job => Number(job.assigned_mechanic) === Number(user.user_id));
                 setJobs(myJobs);
             }
         } catch (error) {
             console.error('Error fetching jobs:', error);
+        } finally {
+            // Optional: stop loading spinner if added
         }
     };
 
@@ -135,6 +137,15 @@ const MechanicDashboard = () => {
             default:
                 return (
                     <>
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-bold text-white">My Assignments</h2>
+                            <button
+                                onClick={fetchMyJobs}
+                                className="bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                            >
+                                <Wrench size={16} /> Refresh
+                            </button>
+                        </div>
                         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                             {jobs.map(job => (
                                 <div key={job.id} className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-blue-500/50 transition-all shadow-xl shadow-black/20">
