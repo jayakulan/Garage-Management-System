@@ -36,7 +36,7 @@ const AdminDashboard = () => {
                         </div>
                         <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
                             <h3 className="text-slate-400 text-sm font-medium">Inventory Value</h3>
-                            <p className="text-3xl font-bold text-green-400 mt-2">$12,450</p>
+                            <p className="text-3xl font-bold text-green-400 mt-2">Rs 12,450</p>
                         </div>
                     </div>
                 );

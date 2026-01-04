@@ -80,7 +80,7 @@ const InventoryManagement = () => {
                         <div className="flex justify-between items-center pt-4 border-t border-slate-700">
                             <div>
                                 <p className="text-xs text-slate-500">Selling Price</p>
-                                <p className="text-lg font-bold text-blue-400">${part.price}</p>
+                                <p className="text-lg font-bold text-blue-400">Rs{part.price}</p>
                             </div>
                             <button className="text-slate-400 hover:text-white transition-colors">Edit</button>
                         </div>
