@@ -23,6 +23,15 @@ const LandingPage = () => {
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
+    const scrollToSection = (e, sectionId) => {
+        e.preventDefault();
+        const element = document.getElementById(sectionId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+            setIsMenuOpen(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-900 text-white font-sans selection:bg-blue-500 selection:text-white flex flex-col">
             {/* Navbar */}
@@ -38,9 +47,9 @@ const LandingPage = () => {
 
                         {/* Desktop Menu */}
                         <div className="hidden md:flex items-center space-x-8">
-                            <a href="#features" className="text-slate-300 hover:text-blue-400 transition-colors text-sm font-medium">Features</a>
-                            <a href="#how-it-works" className="text-slate-300 hover:text-blue-400 transition-colors text-sm font-medium">How it Works</a>
-                            <a href="#testimonials" className="text-slate-300 hover:text-blue-400 transition-colors text-sm font-medium">Testimonials</a>
+                            <button onClick={(e) => scrollToSection(e, 'features')} className="text-slate-300 hover:text-blue-400 transition-colors text-sm font-medium cursor-pointer bg-transparent border-none">Features</button>
+                            <button onClick={(e) => scrollToSection(e, 'how-it-works')} className="text-slate-300 hover:text-blue-400 transition-colors text-sm font-medium cursor-pointer bg-transparent border-none">How it Works</button>
+                            <button onClick={(e) => scrollToSection(e, 'testimonials')} className="text-slate-300 hover:text-blue-400 transition-colors text-sm font-medium cursor-pointer bg-transparent border-none">Testimonials</button>
                             <Link to="/login" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">Login</Link>
                             <Link to="/signup" className="group relative px-6 py-2 rounded-full bg-blue-600 text-white text-sm font-medium shadow-lg shadow-blue-500/25 hover:bg-blue-500 hover:shadow-blue-500/40 transition-all overflow-hidden">
                                 <span className="relative z-10">Get Started</span>
