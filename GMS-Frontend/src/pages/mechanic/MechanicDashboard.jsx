@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import SidebarLayout from '../../components/layout/SidebarLayout';
+import EditProfileModal from '../../components/EditProfileModal';
 import InventoryManagement from './InventoryManagement'; // Correct Import placement
 import { Briefcase, Package, Wrench, CheckCircle } from 'lucide-react';
 
@@ -12,6 +13,7 @@ const MechanicDashboard = () => {
     const [parts, setParts] = useState([]); // Available parts in inventory
     const [selectedJob, setSelectedJob] = useState(null);
     const [activeTab, setActiveTab] = useState('assignments');
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
     // Status Update State
     const [newStatus, setNewStatus] = useState('');
@@ -115,6 +117,14 @@ const MechanicDashboard = () => {
         navigate('/login');
     };
 
+    const handleProfileClick = () => {
+        setIsProfileModalOpen(true);
+    };
+
+    const handleProfileSave = (updatedUser) => {
+        console.log('Profile updated:', updatedUser);
+    };
+
     const getStatusColor = (status) => {
         switch (status) {
             case 'PENDING': return 'bg-yellow-500/20 text-yellow-400';
@@ -188,92 +198,102 @@ const MechanicDashboard = () => {
     };
 
     return (
-        <SidebarLayout
-            title="Mechanic"
-            user={user}
-            menuItems={menuItems}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            onLogout={handleLogout}
-        >
-            {renderContent()}
+        <>
+            <SidebarLayout
+                title="Mechanic"
+                user={user}
+                menuItems={menuItems}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                onLogout={handleLogout}
+                onProfileClick={handleProfileClick}
+            >
+                {renderContent()}
 
-            {/* Job Management Modal - Kept outside renderContent to work across tabs if needed, but mostly for assignments */}
-            {selectedJob && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-slate-800 p-8 rounded-2xl w-full max-w-2xl border border-slate-700 shadow-2xl overflow-y-auto max-h-[90vh]">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold">Job #{selectedJob.id} - {selectedJob.vehicle_reg_number}</h2>
-                            <button onClick={() => setSelectedJob(null)} className="text-slate-400 hover:text-white text-2xl">&times;</button>
-                        </div>
-
-                        <div className="space-y-8">
-                            {/* Update Status */}
-                            <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-700/50">
-                                <h3 className="text-lg font-semibold mb-4 text-blue-400">Update Status</h3>
-                                <div className="flex gap-4">
-                                    <select
-                                        className="flex-1 bg-slate-800 border border-slate-600 rounded-lg p-3 text-white outline-none focus:border-blue-500 transition-colors"
-                                        value={newStatus}
-                                        onChange={e => setNewStatus(e.target.value)}
-                                    >
-                                        <option value="PENDING">Pending</option>
-                                        <option value="DIAGNOSED">Diagnosed</option>
-                                        <option value="IN_PROGRESS">In Progress</option>
-                                        <option value="READY">Ready for Delivery</option>
-                                        <option value="COMPLETED">Completed</option>
-                                    </select>
-                                    <button
-                                        onClick={handleUpdateStatus}
-                                        className="bg-green-600 hover:bg-green-500 px-6 py-3 rounded-lg font-medium transition-colors"
-                                    >
-                                        Update
-                                    </button>
-                                </div>
+                {/* Job Management Modal - Kept outside renderContent to work across tabs if needed, but mostly for assignments */}
+                {selectedJob && (
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                        <div className="bg-slate-800 p-8 rounded-2xl w-full max-w-2xl border border-slate-700 shadow-2xl overflow-y-auto max-h-[90vh]">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-2xl font-bold">Job #{selectedJob.id} - {selectedJob.vehicle_reg_number}</h2>
+                                <button onClick={() => setSelectedJob(null)} className="text-slate-400 hover:text-white text-2xl">&times;</button>
                             </div>
 
-                            {/* Add Parts */}
-                            <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-700/50">
-                                <h3 className="text-lg font-semibold mb-4 text-blue-400">Add Parts Used</h3>
-                                <form onSubmit={handleAddPart} className="space-y-4">
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                        <div className="sm:col-span-2">
-                                            <select
-                                                className="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-white outline-none focus:border-blue-500 transition-colors"
-                                                value={partToAdd}
-                                                onChange={e => setPartToAdd(e.target.value)}
-                                                required
-                                            >
-                                                <option value="">Select Part</option>
-                                                {parts.map(p => (
-                                                    <option key={p.id} value={p.id} disabled={p.quantity < 1}>
-                                                        {p.name} (Stock: {p.quantity}) - ${p.price}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <input
-                                                type="number"
-                                                min="1"
-                                                className="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-white outline-none focus:border-blue-500 transition-colors"
-                                                value={quantityToAdd}
-                                                onChange={e => setQuantityToAdd(e.target.value)}
-                                                placeholder="Qty"
-                                                required
-                                            />
-                                        </div>
+                            <div className="space-y-8">
+                                {/* Update Status */}
+                                <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-700/50">
+                                    <h3 className="text-lg font-semibold mb-4 text-blue-400">Update Status</h3>
+                                    <div className="flex gap-4">
+                                        <select
+                                            className="flex-1 bg-slate-800 border border-slate-600 rounded-lg p-3 text-white outline-none focus:border-blue-500 transition-colors"
+                                            value={newStatus}
+                                            onChange={e => setNewStatus(e.target.value)}
+                                        >
+                                            <option value="PENDING">Pending</option>
+                                            <option value="DIAGNOSED">Diagnosed</option>
+                                            <option value="IN_PROGRESS">In Progress</option>
+                                            <option value="READY">Ready for Delivery</option>
+                                            <option value="COMPLETED">Completed</option>
+                                        </select>
+                                        <button
+                                            onClick={handleUpdateStatus}
+                                            className="bg-green-600 hover:bg-green-500 px-6 py-3 rounded-lg font-medium transition-colors"
+                                        >
+                                            Update
+                                        </button>
                                     </div>
-                                    <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-lg font-medium transition-colors">
-                                        Add Part to Job
-                                    </button>
-                                </form>
+                                </div>
+
+                                {/* Add Parts */}
+                                <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-700/50">
+                                    <h3 className="text-lg font-semibold mb-4 text-blue-400">Add Parts Used</h3>
+                                    <form onSubmit={handleAddPart} className="space-y-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                            <div className="sm:col-span-2">
+                                                <select
+                                                    className="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-white outline-none focus:border-blue-500 transition-colors"
+                                                    value={partToAdd}
+                                                    onChange={e => setPartToAdd(e.target.value)}
+                                                    required
+                                                >
+                                                    <option value="">Select Part</option>
+                                                    {parts.map(p => (
+                                                        <option key={p.id} value={p.id} disabled={p.quantity < 1}>
+                                                            {p.name} (Stock: {p.quantity}) - ${p.price}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    className="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-white outline-none focus:border-blue-500 transition-colors"
+                                                    value={quantityToAdd}
+                                                    onChange={e => setQuantityToAdd(e.target.value)}
+                                                    placeholder="Qty"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                        <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-lg font-medium transition-colors">
+                                            Add Part to Job
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </SidebarLayout>
+                )}
+            </SidebarLayout>
+
+            <EditProfileModal
+                isOpen={isProfileModalOpen}
+                onClose={() => setIsProfileModalOpen(false)}
+                user={user}
+                onSave={handleProfileSave}
+            />
+        </>
     );
 };
 
