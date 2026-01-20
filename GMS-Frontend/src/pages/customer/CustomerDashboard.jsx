@@ -2,53 +2,58 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import SidebarLayout from '../../components/layout/SidebarLayout';
-import { Home, History, PlusCircle, Car, FileText, Clock, X } from 'lucide-react';
+import EditProfileModal from '../../components/EditProfileModal';
+import ServiceRequest from './ServiceRequest';
+import ServiceHistory from './ServiceHistory';
+import MyVehicles from './MyVehicles';
+import {
+    Home, History, PlusCircle, Car, Clock, CheckCircle,
+    AlertCircle, TrendingUp, Calendar, Wrench, DollarSign,
+    ArrowRight, Activity
+} from 'lucide-react';
 
 const CustomerDashboard = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [jobs, setJobs] = useState([]);
-    const [selectedInvoice, setSelectedInvoice] = useState(null);
-    const [showInvoiceModal, setShowInvoiceModal] = useState(false);
-    const [activeTab, setActiveTab] = useState('overview');
-
-    // Derived state
     const [vehicles, setVehicles] = useState([]);
-
-    const handleViewInvoice = (invoice) => {
-        setSelectedInvoice(invoice);
-        setShowInvoiceModal(true);
-    };
+    const [recentJobs, setRecentJobs] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState('overview');
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
     const token = localStorage.getItem('token');
 
     useEffect(() => {
-        if (user) {
-            fetchMyHistory();
+        if (user && activeTab === 'overview') {
+            fetchOverviewData();
         }
-    }, [user, activeTab]); // Re-fetch when tab changes (especially after request submission)
+    }, [user, activeTab]);
 
-    const fetchMyHistory = async () => {
+    const fetchOverviewData = async () => {
+        setLoading(true);
         try {
             const response = await fetch('http://127.0.0.1:8000/api/jobs/', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
                 const data = await response.json();
-                // Filter jobs for this customer
                 const myJobs = data.filter(job => Number(job.customer) === Number(user.user_id));
                 setJobs(myJobs);
 
-                // Extract unique vehicles
-                const uniqueVehicles = [...new Set(myJobs.map(job => job.vehicle_reg_number))]
-                    .map(reg => {
-                        const job = myJobs.find(j => j.vehicle_reg_number === reg);
-                        return { reg, model: job.vehicle_model };
-                    });
+                // Get recent jobs (last 5)
+                const sortedJobs = [...myJobs].sort((a, b) =>
+                    new Date(b.created_at || b.id) - new Date(a.created_at || a.id)
+                );
+                setRecentJobs(sortedJobs.slice(0, 5));
+
+                const uniqueVehicles = [...new Set(myJobs.map(job => job.vehicle_reg_number))];
                 setVehicles(uniqueVehicles);
             }
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -57,15 +62,14 @@ const CustomerDashboard = () => {
         navigate('/login');
     };
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'PENDING': return 'bg-yellow-500/20 text-yellow-400';
-            case 'IN_PROGRESS': return 'bg-blue-500/20 text-blue-400';
-            case 'READY': return 'bg-cyan-500/20 text-cyan-400';
-            case 'COMPLETED': return 'bg-green-500/20 text-green-400';
-            case 'CANCELLED': return 'bg-red-500/20 text-red-400';
-            default: return 'bg-slate-500/20 text-slate-400';
-        }
+    const handleProfileClick = () => {
+        setIsProfileModalOpen(true);
+    };
+
+    const handleProfileSave = (updatedUser) => {
+        // Optionally update local state or refetch data
+        console.log('Profile updated:', updatedUser);
+        // You might want to refresh the token or user data here
     };
 
     const menuItems = [
@@ -75,240 +79,323 @@ const CustomerDashboard = () => {
         { id: 'vehicles', label: 'My Vehicles', icon: Car },
     ];
 
-    const renderContent = () => {
-        switch (activeTab) {
-            case 'request':
-                return (
-                    <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-xl max-w-3xl">
-                        <ServiceRequestWrapper onSuccess={() => setActiveTab('overview')} onCancel={() => setActiveTab('overview')} />
+    const getStatusColor = (status) => {
+        const colors = {
+            'PENDING': 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
+            'IN_PROGRESS': 'text-blue-400 bg-blue-400/10 border-blue-400/20',
+            'COMPLETED': 'text-green-400 bg-green-400/10 border-green-400/20',
+            'CANCELLED': 'text-red-400 bg-red-400/10 border-red-400/20',
+        };
+        return colors[status] || 'text-gray-400 bg-gray-400/10 border-gray-400/20';
+    };
+
+    const getStatusIcon = (status) => {
+        switch (status) {
+            case 'PENDING': return <Clock className="w-4 h-4" />;
+            case 'IN_PROGRESS': return <Activity className="w-4 h-4" />;
+            case 'COMPLETED': return <CheckCircle className="w-4 h-4" />;
+            case 'CANCELLED': return <AlertCircle className="w-4 h-4" />;
+            default: return <Clock className="w-4 h-4" />;
+        }
+    };
+
+    const renderOverview = () => {
+        const activeJobs = jobs.filter(j => j.status !== 'COMPLETED' && j.status !== 'CANCELLED').length;
+        const completedJobs = jobs.filter(j => j.status === 'COMPLETED').length;
+        const pendingJobs = jobs.filter(j => j.status === 'PENDING').length;
+        const totalSpent = jobs
+            .filter(j => j.status === 'COMPLETED')
+            .reduce((sum, job) => sum + (parseFloat(job.total_cost) || 0), 0);
+
+        return (
+            <div className="space-y-8">
+                {/* Welcome Section */}
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 rounded-2xl shadow-xl">
+                    <h1 className="text-3xl font-bold text-white mb-2">
+                        Welcome back, {user?.username || 'Customer'}! 👋
+                    </h1>
+                    <p className="text-blue-100">
+                        Here's what's happening with your vehicles today.
+                    </p>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* Active Jobs Card */}
+                    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-blue-500/10 rounded-lg">
+                                <Activity className="w-6 h-6 text-blue-400" />
+                            </div>
+                            <TrendingUp className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <h3 className="text-slate-400 text-sm font-medium mb-1">Active Jobs</h3>
+                        <p className="text-3xl font-bold text-white">{activeJobs}</p>
+                        <p className="text-xs text-slate-500 mt-2">In progress</p>
                     </div>
-                );
-            case 'history':
-                return (
-                    <div className="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 shadow-xl">
-                        <table className="w-full text-left border-collapse">
-                            <thead className="bg-slate-700/50">
-                                <tr>
-                                    <th className="p-5 border-b border-slate-700">Date</th>
-                                    <th className="p-5 border-b border-slate-700">Vehicle</th>
-                                    <th className="p-5 border-b border-slate-700">Issue</th>
-                                    <th className="p-5 border-b border-slate-700">Status</th>
-                                    <th className="p-5 border-b border-slate-700">Billing</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {jobs.map(job => (
-                                    <tr key={job.id} className="hover:bg-slate-700/30 transition-colors">
-                                        <td className="p-5 border-b border-slate-700 text-slate-400">
-                                            {new Date(job.created_at).toLocaleDateString()}
-                                        </td>
-                                        <td className="p-5 border-b border-slate-700 font-medium">{job.vehicle_reg_number}</td>
-                                        <td className="p-5 border-b border-slate-700 text-slate-300 max-w-xs truncate">{job.reported_issues}</td>
-                                        <td className="p-5 border-b border-slate-700">
-                                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(job.status)}`}>
-                                                {job.status}
+
+                    {/* Total Vehicles Card */}
+                    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-green-500/10 rounded-lg">
+                                <Car className="w-6 h-6 text-green-400" />
+                            </div>
+                            <TrendingUp className="w-5 h-5 text-green-400" />
+                        </div>
+                        <h3 className="text-slate-400 text-sm font-medium mb-1">My Vehicles</h3>
+                        <p className="text-3xl font-bold text-white">{vehicles.length}</p>
+                        <p className="text-xs text-slate-500 mt-2">Registered</p>
+                    </div>
+
+                    {/* Completed Jobs Card */}
+                    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-purple-500/10 rounded-lg">
+                                <CheckCircle className="w-6 h-6 text-purple-400" />
+                            </div>
+                            <TrendingUp className="w-5 h-5 text-purple-400" />
+                        </div>
+                        <h3 className="text-slate-400 text-sm font-medium mb-1">Completed</h3>
+                        <p className="text-3xl font-bold text-white">{completedJobs}</p>
+                        <p className="text-xs text-slate-500 mt-2">Services done</p>
+                    </div>
+
+                    {/* Total Spent Card */}
+                    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-yellow-500/10 rounded-lg">
+                                <DollarSign className="w-6 h-6 text-yellow-400" />
+                            </div>
+                            <TrendingUp className="w-5 h-5 text-yellow-400" />
+                        </div>
+                        <h3 className="text-slate-400 text-sm font-medium mb-1">Total Spent</h3>
+                        <p className="text-3xl font-bold text-white">₹{totalSpent.toFixed(2)}</p>
+                        <p className="text-xs text-slate-500 mt-2">All time</p>
+                    </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg">
+                    <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <Wrench className="w-5 h-5 text-blue-400" />
+                        Quick Actions
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button
+                            onClick={() => setActiveTab('request')}
+                            className="p-4 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 group"
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <PlusCircle className="w-5 h-5 text-white" />
+                                    <span className="text-white font-medium">New Service Request</span>
+                                </div>
+                                <ArrowRight className="w-5 h-5 text-white group-hover:translate-x-1 transition-transform" />
+                            </div>
+                        </button>
+
+                        <button
+                            onClick={() => setActiveTab('vehicles')}
+                            className="p-4 bg-gradient-to-r from-green-600 to-green-700 rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-300 group"
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <Car className="w-5 h-5 text-white" />
+                                    <span className="text-white font-medium">Manage Vehicles</span>
+                                </div>
+                                <ArrowRight className="w-5 h-5 text-white group-hover:translate-x-1 transition-transform" />
+                            </div>
+                        </button>
+
+                        <button
+                            onClick={() => setActiveTab('history')}
+                            className="p-4 bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-300 group"
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <History className="w-5 h-5 text-white" />
+                                    <span className="text-white font-medium">View History</span>
+                                </div>
+                                <ArrowRight className="w-5 h-5 text-white group-hover:translate-x-1 transition-transform" />
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Recent Services */}
+                    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg">
+                        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                            <Calendar className="w-5 h-5 text-blue-400" />
+                            Recent Services
+                        </h2>
+                        <div className="space-y-3">
+                            {recentJobs.length > 0 ? (
+                                recentJobs.map((job, index) => (
+                                    <div
+                                        key={job.id || index}
+                                        className="p-4 bg-slate-700/50 rounded-lg border border-slate-600 hover:border-blue-500/50 transition-all duration-300"
+                                    >
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-white font-medium">
+                                                {job.vehicle_reg_number}
                                             </span>
-                                        </td>
-                                        <td className="p-5 border-b border-slate-700 font-medium">
-                                            {job.invoice_details ? (
-                                                <button
-                                                    onClick={() => handleViewInvoice(job.invoice_details)}
-                                                    className="flex flex-col gap-1 items-start hover:bg-slate-700 p-2 rounded transition-colors w-full text-left group"
-                                                >
-                                                    <span className="text-white group-hover:text-blue-400 transition-colors">
-                                                        ${job.invoice_details.grand_total}
-                                                    </span>
-                                                    <span className={`text-[10px] uppercase font-bold ${job.invoice_details.status === 'PAID' ? 'text-green-400' : 'text-red-400'}`}>
-                                                        {job.invoice_details.status}
-                                                    </span>
-                                                    <span className="text-[10px] text-slate-500 underline decoration-slate-600 group-hover:text-blue-300">View Breakdown</span>
-                                                </button>
-                                            ) : (
-                                                <span className="text-slate-500 text-xs">
-                                                    {job.status === 'READY' ? 'Generating Bill...' : '-'}
+                                            <span className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1 ${getStatusColor(job.status)}`}>
+                                                {getStatusIcon(job.status)}
+                                                {job.status.replace('_', ' ')}
+                                            </span>
+                                        </div>
+                                        <p className="text-slate-400 text-sm mb-2">
+                                            {job.description || 'Service request'}
+                                        </p>
+                                        <div className="flex items-center justify-between text-xs text-slate-500">
+                                            <span>Job #{job.id}</span>
+                                            {job.total_cost && (
+                                                <span className="text-green-400 font-medium">
+                                                    ₹{parseFloat(job.total_cost).toFixed(2)}
                                                 </span>
                                             )}
-                                        </td>
-                                    </tr>
-                                ))}
-                                {jobs.length === 0 && (
-                                    <tr>
-                                        <td colSpan="4" className="p-8 text-center text-slate-500">No service history found.</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                );
-            case 'vehicles':
-                return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {vehicles.length === 0 ? (
-                            <p className="text-slate-500 col-span-full">No vehicles registered yet.</p>
-                        ) : (
-                            vehicles.map((v, idx) => (
-                                <div key={idx} className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg flex items-center justify-between">
-                                    <div>
-                                        <h3 className="text-xl font-bold text-white">{v.reg}</h3>
-                                        <p className="text-slate-400 text-sm">{v.model}</p>
+                                        </div>
                                     </div>
-                                    <div className="w-12 h-12 rounded-full bg-blue-600/20 flex items-center justify-center text-blue-400">
-                                        <Car size={24} />
+                                ))
+                            ) : (
+                                <div className="text-center py-8">
+                                    <Clock className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                                    <p className="text-slate-400">No recent services</p>
+                                    <button
+                                        onClick={() => setActiveTab('request')}
+                                        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                    >
+                                        Request Service
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Service Insights */}
+                    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg">
+                        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                            <Activity className="w-5 h-5 text-purple-400" />
+                            Service Insights
+                        </h2>
+                        <div className="space-y-4">
+                            {/* Pending Jobs Alert */}
+                            {pendingJobs > 0 && (
+                                <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                                    <div className="flex items-start gap-3">
+                                        <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5" />
+                                        <div>
+                                            <h3 className="text-yellow-400 font-medium mb-1">
+                                                Pending Approval
+                                            </h3>
+                                            <p className="text-slate-300 text-sm">
+                                                You have {pendingJobs} service {pendingJobs === 1 ? 'request' : 'requests'} waiting for approval.
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            ))
-                        )}
+                            )}
+
+                            {/* Active Jobs Info */}
+                            {activeJobs > 0 && (
+                                <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                                    <div className="flex items-start gap-3">
+                                        <Activity className="w-5 h-5 text-blue-400 mt-0.5" />
+                                        <div>
+                                            <h3 className="text-blue-400 font-medium mb-1">
+                                                Work in Progress
+                                            </h3>
+                                            <p className="text-slate-300 text-sm">
+                                                {activeJobs} {activeJobs === 1 ? 'vehicle is' : 'vehicles are'} currently being serviced.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Maintenance Tip */}
+                            <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                                <div className="flex items-start gap-3">
+                                    <Wrench className="w-5 h-5 text-purple-400 mt-0.5" />
+                                    <div>
+                                        <h3 className="text-purple-400 font-medium mb-1">
+                                            Maintenance Tip
+                                        </h3>
+                                        <p className="text-slate-300 text-sm">
+                                            Regular servicing every 6 months keeps your vehicle in optimal condition.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* All Clear Message */}
+                            {pendingJobs === 0 && activeJobs === 0 && jobs.length > 0 && (
+                                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                                    <div className="flex items-start gap-3">
+                                        <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
+                                        <div>
+                                            <h3 className="text-green-400 font-medium mb-1">
+                                                All Caught Up!
+                                            </h3>
+                                            <p className="text-slate-300 text-sm">
+                                                No pending services. Your vehicles are all set!
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                );
+                </div>
+            </div>
+        );
+    };
+
+    const renderContent = () => {
+        if (loading && activeTab === 'overview') {
+            return (
+                <div className="flex items-center justify-center h-64">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                </div>
+            );
+        }
+
+        switch (activeTab) {
+            case 'request':
+                return <ServiceRequest onSuccess={() => setActiveTab('history')} onCancel={() => setActiveTab('overview')} />;
+            case 'history':
+                return <ServiceHistory />;
+            case 'vehicles':
+                return <MyVehicles />;
             case 'overview':
             default:
-                return (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                        {/* Stats Cards */}
-                        <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-xl">
-                            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                                💳 Active Jobs
-                            </h2>
-                            <div className="text-center py-6">
-                                <p className="text-slate-400 text-sm mb-2">Jobs In Progress</p>
-                                <p className="text-4xl font-bold text-blue-400">
-                                    {jobs.filter(j => j.status !== 'COMPLETED' && j.status !== 'CANCELLED').length}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-xl">
-                            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                                🚗 Total Vehicles
-                            </h2>
-                            <div className="text-center py-6">
-                                <p className="text-slate-400 text-sm mb-2">My Fleet</p>
-                                <p className="text-4xl font-bold text-green-400">
-                                    {vehicles.length}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                );
+                return renderOverview();
         }
     };
 
     return (
-        <SidebarLayout
-            title="Customer"
-            user={user}
-            menuItems={menuItems}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            onLogout={handleLogout}
-        >
-            {renderContent()}
+        <>
+            <SidebarLayout
+                title="Customer"
+                user={user}
+                menuItems={menuItems}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                onLogout={handleLogout}
+                onProfileClick={handleProfileClick}
+            >
+                {renderContent()}
+            </SidebarLayout>
 
-            {/* Invoice Details Modal */}
-            {showInvoiceModal && selectedInvoice && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-                    <div className="bg-slate-900 rounded-2xl w-full max-w-md border border-slate-700 shadow-2xl overflow-hidden">
-                        <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
-                            <h2 className="text-xl font-bold text-white">Invoice Details</h2>
-                            <button onClick={() => setShowInvoiceModal(false)} className="text-slate-400 hover:text-white transition-colors">
-                                <X size={24} />
-                            </button>
-                        </div>
-                        <div className="p-6 space-y-4">
-                            <div className="flex justify-between items-center p-3 bg-slate-800 rounded-lg">
-                                <span className="text-slate-400">Invoice Status</span>
-                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${selectedInvoice.status === 'PAID' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                                    {selectedInvoice.status}
-                                </span>
-                            </div>
-
-                            <div className="space-y-3 pt-4 border-t border-slate-800">
-                                <div className="flex justify-between text-slate-300">
-                                    <span>Parts Total</span>
-                                    <span>${selectedInvoice.parts_total}</span>
-                                </div>
-                                <div className="flex justify-between text-slate-300">
-                                    <span>Labor Cost</span>
-                                    <span>${selectedInvoice.labor_cost}</span>
-                                </div>
-                                <div className="flex justify-between text-white font-bold text-lg pt-4 border-t border-slate-700 mt-4">
-                                    <span>Grand Total</span>
-                                    <span>${selectedInvoice.grand_total}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="p-6 border-t border-slate-800 bg-slate-800/30">
-                            <button
-                                onClick={() => setShowInvoiceModal(false)}
-                                className="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg font-medium transition-colors"
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </SidebarLayout>
-    );
-};
-
-// Internal wrapper to handle Service Request logic reuse
-const ServiceRequestWrapper = ({ onSuccess, onCancel }) => {
-    // const { user } = useAuth(); // Not strictly needed inside form unless we use user info for defaults
-
-    const [request, setRequest] = useState({
-        vehicle_reg_number: '',
-        vehicle_model: '',
-        reported_issues: ''
-    });
-    const token = localStorage.getItem('token');
-
-    const handleChange = (e) => setRequest({ ...request, [e.target.name]: e.target.value });
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await fetch('http://127.0.0.1:8000/api/jobs/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ ...request, status: 'PENDING' })
-            });
-            if (response.ok) {
-                alert('Service Request Submitted!');
-                onSuccess();
-            } else {
-                alert('Failed to submit');
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <h3 className="text-xl font-bold mb-4 text-white">New Service Request</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Vehicle Reg. Number</label>
-                    <input type="text" name="vehicle_reg_number" required className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white outline-none focus:border-blue-500" value={request.vehicle_reg_number} onChange={handleChange} placeholder="ABC-1234" />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Vehicle Model</label>
-                    <input type="text" name="vehicle_model" required className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white outline-none focus:border-blue-500" value={request.vehicle_model} onChange={handleChange} placeholder="Toyota Corolla" />
-                </div>
-            </div>
-            <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Issue Description</label>
-                <textarea name="reported_issues" required className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white outline-none focus:border-blue-500 h-32 resize-none" value={request.reported_issues} onChange={handleChange} placeholder="Describe the issue..."></textarea>
-            </div>
-            <div className="flex gap-4">
-                <button type="button" onClick={onCancel} className="flex-1 bg-slate-700 hover:bg-slate-600 py-2 rounded-lg font-medium transition-colors text-white">Cancel</button>
-                <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-500 py-2 rounded-lg font-medium transition-colors text-white">Submit Request</button>
-            </div>
-        </form>
+            <EditProfileModal
+                isOpen={isProfileModalOpen}
+                onClose={() => setIsProfileModalOpen(false)}
+                user={user}
+                onSave={handleProfileSave}
+            />
+        </>
     );
 };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { LogOut, User } from 'lucide-react';
 
-const SidebarLayout = ({ title, user, menuItems, activeTab, onTabChange, onLogout, children }) => {
+const SidebarLayout = ({ title, user, menuItems, activeTab, onTabChange, onLogout, onProfileClick, children }) => {
     return (
         <div className="min-h-screen bg-slate-900 flex font-sans">
             {/* Sidebar */}
@@ -62,9 +62,13 @@ const SidebarLayout = ({ title, user, menuItems, activeTab, onTabChange, onLogou
                             <p className="text-sm font-medium text-white">{user?.username}</p>
                             <p className="text-xs text-slate-400">{user?.role}</p>
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold border border-slate-600">
-                            {user?.username?.charAt(0).toUpperCase() || <User size={20} />}
-                        </div>
+                        <button
+                            onClick={onProfileClick}
+                            className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold border border-slate-600 hover:border-blue-500 hover:bg-slate-600 transition-all cursor-pointer group"
+                            title="Edit Profile"
+                        >
+                            {user?.username?.charAt(0).toUpperCase() || <User size={20} className="group-hover:scale-110 transition-transform" />}
+                        </button>
                     </div>
                 </header>
 
