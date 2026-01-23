@@ -82,7 +82,8 @@ const LandingPage = () => {
             </nav>
 
             {/* Hero Section */}
-            <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden flex-grow">
+            <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden flex-grow" style={{ backgroundImage: 'url(/1111.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'scroll' }}>
+                <div className="absolute inset-0 bg-slate-800/80 z-0"></div>
                 {/* Background Effects */}
                 <div className="absolute top-0 left-1/2 w-full -translate-x-1/2 h-full z-0 pointer-events-none">
                     <div className="absolute top-20 left-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] mix-blend-screen animate-blob"></div>
@@ -116,9 +117,39 @@ const LandingPage = () => {
                             Start Free Trial
                             <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                         </Link>
-                        <button className="w-full sm:w-auto px-8 py-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 hover:border-slate-600 rounded-xl font-bold text-slate-200 transition-all hover:scale-105 backdrop-blur-sm">
-                            Watch Demo
-                        </button>
+                        
+                    </div>
+                </div>
+            </section>
+
+            
+
+            {/* Features Grid */}
+            <section id="features" className="py-24 bg-slate-950 relative border-t border-slate-800/50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Everything you need to run your garage</h2>
+                        <p className="text-slate-400 max-w-2xl mx-auto text-lg">From job card creation to final billing, we've got every step of your workflow covered with precision.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {[
+                            { title: 'Digital Job Cards', desc: 'Create and track job cards instantly. Move away from messy paper trails.', icon: ClipboardCheck, color: 'text-blue-400', bg: 'bg-blue-500/10' },
+                            { title: 'Inventory Control', desc: 'Track spare parts in real-time. Never run out of essential stock.', icon: Wrench, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+                            { title: 'Smart Billing', desc: 'Generate professional invoices with one click. Manage tax and discounts.', icon: CreditCard, color: 'text-purple-400', bg: 'bg-purple-500/10' },
+                            { title: 'Service History', desc: 'Access vehicle service history instantly to provide better recommendations.', icon: History, color: 'text-amber-400', bg: 'bg-amber-500/10' },
+                            { title: 'Mechanic Management', desc: 'Efficiently allocate work to your staff based on expertise and availability.', icon: Users, color: 'text-rose-400', bg: 'bg-rose-500/10' },
+                            { title: 'Analytics & Reports', desc: 'Get insights into your business performance with detailed revenue reports.', icon: BarChart3, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
+                        ].map((feature, idx) => (
+                            <div key={idx} className="p-8 rounded-2xl bg-slate-900 border border-slate-800 hover:border-blue-500/30 transition-all hover:shadow-2xl hover:shadow-blue-900/10 group cursor-default relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className={`w-14 h-14 ${feature.bg} ${feature.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                                    <feature.icon size={28} />
+                                </div>
+                                <h3 className="text-xl font-bold text-white mb-3 relative z-10">{feature.title}</h3>
+                                <p className="text-slate-400 leading-relaxed relative z-10">{feature.desc}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -150,36 +181,6 @@ const LandingPage = () => {
                                     <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
                                     <p className="text-sm text-slate-400 leading-relaxed">{item.desc}</p>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Features Grid */}
-            <section id="features" className="py-24 bg-slate-950 relative border-t border-slate-800/50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Everything you need to run your garage</h2>
-                        <p className="text-slate-400 max-w-2xl mx-auto text-lg">From job card creation to final billing, we've got every step of your workflow covered with precision.</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {[
-                            { title: 'Digital Job Cards', desc: 'Create and track job cards instantly. Move away from messy paper trails.', icon: ClipboardCheck, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-                            { title: 'Inventory Control', desc: 'Track spare parts in real-time. Never run out of essential stock.', icon: Wrench, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-                            { title: 'Smart Billing', desc: 'Generate professional invoices with one click. Manage tax and discounts.', icon: CreditCard, color: 'text-purple-400', bg: 'bg-purple-500/10' },
-                            { title: 'Service History', desc: 'Access vehicle service history instantly to provide better recommendations.', icon: History, color: 'text-amber-400', bg: 'bg-amber-500/10' },
-                            { title: 'Mechanic Management', desc: 'Efficiently allocate work to your staff based on expertise and availability.', icon: Users, color: 'text-rose-400', bg: 'bg-rose-500/10' },
-                            { title: 'Analytics & Reports', desc: 'Get insights into your business performance with detailed revenue reports.', icon: BarChart3, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
-                        ].map((feature, idx) => (
-                            <div key={idx} className="p-8 rounded-2xl bg-slate-900 border border-slate-800 hover:border-blue-500/30 transition-all hover:shadow-2xl hover:shadow-blue-900/10 group cursor-default relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className={`w-14 h-14 ${feature.bg} ${feature.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                                    <feature.icon size={28} />
-                                </div>
-                                <h3 className="text-xl font-bold text-white mb-3 relative z-10">{feature.title}</h3>
-                                <p className="text-slate-400 leading-relaxed relative z-10">{feature.desc}</p>
                             </div>
                         ))}
                     </div>
