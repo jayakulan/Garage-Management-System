@@ -31,7 +31,9 @@ const JobManagement = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                setJobs(data);
+                // Filter out DIAGNOSED status
+                const filteredData = data.filter(job => job.status !== 'DIAGNOSED');
+                setJobs(filteredData);
             }
         } catch (error) {
             console.error('Error fetching jobs:', error);
@@ -248,7 +250,6 @@ const JobManagement = () => {
                                         onChange={e => setNewJob({ ...newJob, status: e.target.value })}
                                     >
                                         <option value="PENDING">Pending</option>
-                                        <option value="DIAGNOSED">Diagnosed</option>
                                         <option value="IN_PROGRESS">In Progress</option>
                                         <option value="READY">Ready</option>
                                         <option value="COMPLETED">Completed</option>

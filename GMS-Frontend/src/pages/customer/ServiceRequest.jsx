@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Check } from 'lucide-react';
 
 const ServiceRequest = ({ onSuccess, onCancel }) => {
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
+    const [toast, setToast] = useState({ message: '', type: '', visible: false });
 
     // In standalone page mode, if onSuccess/onCancel are not props, define defaults
     const handleSuccess = onSuccess || (() => navigate('/customer/dashboard'));
@@ -17,6 +19,13 @@ const ServiceRequest = ({ onSuccess, onCancel }) => {
 
     const handleChange = (e) => setRequest({ ...request, [e.target.name]: e.target.value });
 
+    const showToast = (message, type) => {
+        setToast({ message, type, visible: true });
+        setTimeout(() => {
+            setToast({ message: '', type: '', visible: false });
+        }, 3000);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -29,20 +38,40 @@ const ServiceRequest = ({ onSuccess, onCancel }) => {
                 body: JSON.stringify({ ...request, status: 'PENDING' })
             });
             if (response.ok) {
-                alert('Service Request Submitted!');
-                handleSuccess();
+                showToast('Service request submitted successfully!', 'success');
+                setTimeout(() => {
+                    handleSuccess();
+                }, 1500);
             } else {
                 const err = await response.json();
-                alert(`Failed to submit: ${JSON.stringify(err)}`);
+                showToast(`Failed: ${err.detail || 'Please try again'}`, 'error');
             }
         } catch (error) {
             console.error(error);
-            alert('Something went wrong.');
+            showToast('Something went wrong. Please try again.', 'error');
         }
     };
 
     return (
         <div className="text-white">
+            {/* Toast Notification */}
+            {toast.visible && (
+                <div className="fixed top-4 right-4 z-50 animate-in fade-in slide-in-from-top-4">
+                    <div className={`p-4 rounded-lg flex items-center gap-3 shadow-lg ${
+                        toast.type === 'success' 
+                            ? 'bg-green-600 text-white' 
+                            : 'bg-red-600 text-white'
+                    }`}>
+                        {toast.type === 'success' ? (
+                            <Check size={20} />
+                        ) : (
+                            <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        )}
+                        {toast.message}
+                    </div>
+                </div>
+            )}
+
             <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-xl max-w-3xl">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <h3 className="text-xl font-bold mb-4 text-white">New Service Request</h3>
