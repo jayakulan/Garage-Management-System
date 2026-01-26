@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, ArrowRight, LogIn } from 'lucide-react';
+import { Mail, Lock, ArrowRight, LogIn, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
     const { login } = useAuth();
@@ -9,10 +9,13 @@ const Login = () => {
     const [email, setEmail] = useState(''); // Treating email as 'username' input
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
         try {
             const user = await login(email, password);
             // Redirect based on role
@@ -26,6 +29,8 @@ const Login = () => {
         } catch (err) {
             setError('Invalid credentials');
             console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -94,10 +99,13 @@ const Login = () => {
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-blue-500 transition-colors">
                                     <Lock size={20} />
                                 </div>
-                                <input id="password" name="password" type="password" required
+                                <input id="password" name="password" type={showPassword ? "text" : "password"} required
                                     value={password} onChange={(e) => setPassword(e.target.value)}
-                                    className="block w-full pl-10 pr-3 py-3 bg-slate-900 border border-slate-800 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-white placeholder-slate-600 transition-all outline-none"
+                                    className="block w-full pl-10 pr-10 py-3 bg-slate-900 border border-slate-800 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-white placeholder-slate-600 transition-all outline-none"
                                     placeholder="Password" />
+                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-white transition-colors">
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
                             </div>
                         </div>
 
@@ -109,8 +117,19 @@ const Login = () => {
                             <a href="#" className="font-bold text-blue-400 hover:text-blue-300 hover:underline transition-all">Forgot password?</a>
                         </div>
 
-                        <button type="submit" className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl shadow-lg shadow-blue-500/20 text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5">
-                            Sign In <ArrowRight size={18} />
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl shadow-lg shadow-blue-500/20 text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        >
+                            {loading ? (
+                                <span className="flex items-center gap-2">
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                    Signing In...
+                                </span>
+                            ) : (
+                                <>Sign In <ArrowRight size={18} /></>
+                            )}
                         </button>
                     </form>
 

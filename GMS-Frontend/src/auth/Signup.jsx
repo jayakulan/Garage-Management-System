@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, Wrench, ArrowRight, Mail, Lock, Phone, UserCircle } from 'lucide-react';
+import { User, Wrench, ArrowRight, Mail, Lock, Phone, UserCircle, Eye, EyeOff } from 'lucide-react';
 
 const Signup = () => {
     const { signup } = useAuth();
@@ -15,6 +15,9 @@ const Signup = () => {
         phone: ''
     });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,14 +27,31 @@ const Signup = () => {
         setFormData({ ...formData, role });
     };
 
+    const validateInputs = () => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            return "Invalid email format";
+        }
+        if (formData.password.length < 6) {
+            return "Password must be at least 6 characters long";
+        }
+        if (formData.password !== formData.confirmPassword) {
+            return "Passwords do not match";
+        }
+        return null;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
-        if (formData.password !== formData.confirmPassword) {
-            setError("Passwords do not match");
+        const validationError = validateInputs();
+        if (validationError) {
+            setError(validationError);
             return;
         }
+
+        setLoading(true);
 
         try {
             const { confirmPassword, ...signupData } = formData;
@@ -40,6 +60,8 @@ const Signup = () => {
         } catch (err) {
             setError('Signup failed. Please check your inputs.');
             console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -140,25 +162,42 @@ const Signup = () => {
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-blue-500 transition-colors">
                                     <Lock size={20} />
                                 </div>
-                                <input id="password" name="password" type="password" required
+                                <input id="password" name="password" type={showPassword ? "text" : "password"} required
                                     value={formData.password} onChange={handleChange}
-                                    className="block w-full pl-10 pr-3 py-3 bg-slate-900 border border-slate-800 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-white placeholder-slate-600 transition-all outline-none"
+                                    className="block w-full pl-10 pr-10 py-3 bg-slate-900 border border-slate-800 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-white placeholder-slate-600 transition-all outline-none"
                                     placeholder="Password" />
+                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-white transition-colors">
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
                             </div>
 
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-blue-500 transition-colors">
                                     <Lock size={20} />
                                 </div>
-                                <input id="confirmPassword" name="confirmPassword" type="password" required
+                                <input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? "text" : "password"} required
                                     value={formData.confirmPassword} onChange={handleChange}
-                                    className="block w-full pl-10 pr-3 py-3 bg-slate-900 border border-slate-800 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-white placeholder-slate-600 transition-all outline-none"
+                                    className="block w-full pl-10 pr-10 py-3 bg-slate-900 border border-slate-800 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-white placeholder-slate-600 transition-all outline-none"
                                     placeholder="Confirm Password" />
+                                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-white transition-colors">
+                                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
                             </div>
                         </div>
 
-                        <button type="submit" className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl shadow-lg shadow-blue-500/20 text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5">
-                            Create Account <ArrowRight size={18} />
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl shadow-lg shadow-blue-500/20 text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        >
+                            {loading ? (
+                                <span className="flex items-center gap-2">
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                    Creating Account...
+                                </span>
+                            ) : (
+                                <>Create Account <ArrowRight size={18} /></>
+                            )}
                         </button>
                     </form>
 
