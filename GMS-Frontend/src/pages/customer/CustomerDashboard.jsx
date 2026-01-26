@@ -9,7 +9,7 @@ import MyVehicles from './MyVehicles';
 import {
     Home, History, PlusCircle, Car, Clock, CheckCircle,
     AlertCircle, TrendingUp, Calendar, Wrench, DollarSign,
-    ArrowRight, Activity
+    ArrowRight, Activity, Check
 } from 'lucide-react';
 
 const CustomerDashboard = () => {
@@ -21,6 +21,7 @@ const CustomerDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('overview');
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [toast, setToast] = useState({ message: '', type: '', visible: false });
 
     const token = localStorage.getItem('token');
 
@@ -38,7 +39,8 @@ const CustomerDashboard = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                const myJobs = data.filter(job => Number(job.customer) === Number(user.user_id));
+                // Filter out DIAGNOSED status
+                const myJobs = data.filter(job => Number(job.customer) === Number(user.user_id) && job.status !== 'DIAGNOSED');
                 setJobs(myJobs);
 
                 // Get recent jobs (last 5)
@@ -62,6 +64,13 @@ const CustomerDashboard = () => {
         navigate('/login');
     };
 
+    const showToast = (message, type) => {
+        setToast({ message, type, visible: true });
+        setTimeout(() => {
+            setToast({ message: '', type: '', visible: false });
+        }, 3000);
+    };
+
     const handleProfileClick = () => {
         setIsProfileModalOpen(true);
     };
@@ -69,6 +78,7 @@ const CustomerDashboard = () => {
     const handleProfileSave = (updatedUser) => {
         // Optionally update local state or refetch data
         console.log('Profile updated:', updatedUser);
+        showToast('Profile saved successfully!', 'success');
         // You might want to refresh the token or user data here
     };
 
@@ -100,25 +110,17 @@ const CustomerDashboard = () => {
     };
 
     const renderOverview = () => {
-        const activeJobs = jobs.filter(j => j.status !== 'COMPLETED' && j.status !== 'CANCELLED').length;
-        const completedJobs = jobs.filter(j => j.status === 'COMPLETED').length;
-        const pendingJobs = jobs.filter(j => j.status === 'PENDING').length;
-        const totalSpent = jobs
+        // Filter out DIAGNOSED status from display
+        const validJobs = jobs.filter(j => j.status !== 'DIAGNOSED');
+        const activeJobs = validJobs.filter(j => j.status !== 'COMPLETED' && j.status !== 'CANCELLED').length;
+        const completedJobs = validJobs.filter(j => j.status === 'COMPLETED').length;
+        const pendingJobs = validJobs.filter(j => j.status === 'PENDING').length;
+        const totalSpent = validJobs
             .filter(j => j.status === 'COMPLETED')
             .reduce((sum, job) => sum + (parseFloat(job.total_cost) || 0), 0);
 
         return (
             <div className="space-y-8">
-                {/* Welcome Section */}
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 rounded-2xl shadow-xl">
-                    <h1 className="text-3xl font-bold text-white mb-2">
-                        Welcome back, {user?.username || 'Customer'}! 👋
-                    </h1>
-                    <p className="text-blue-100">
-                        Here's what's happening with your vehicles today.
-                    </p>
-                </div>
-
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {/* Active Jobs Card */}
@@ -169,7 +171,7 @@ const CustomerDashboard = () => {
                             <TrendingUp className="w-5 h-5 text-yellow-400" />
                         </div>
                         <h3 className="text-slate-400 text-sm font-medium mb-1">Total Spent</h3>
-                        <p className="text-3xl font-bold text-white">₹{totalSpent.toFixed(2)}</p>
+                        <p className="text-3xl font-bold text-white">Rs {totalSpent.toFixed(2)}</p>
                         <p className="text-xs text-slate-500 mt-2">All time</p>
                     </div>
                 </div>
@@ -377,6 +379,24 @@ const CustomerDashboard = () => {
 
     return (
         <>
+            {/* Toast Notification */}
+            {toast.visible && (
+                <div className="fixed top-4 right-4 z-50 animate-in fade-in slide-in-from-top-4">
+                    <div className={`p-4 rounded-lg flex items-center gap-3 shadow-lg ${
+                        toast.type === 'success' 
+                            ? 'bg-green-600 text-white' 
+                            : 'bg-red-600 text-white'
+                    }`}>
+                        {toast.type === 'success' ? (
+                            <Check size={20} />
+                        ) : (
+                            <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        )}
+                        {toast.message}
+                    </div>
+                </div>
+            )}
+
             <SidebarLayout
                 title="Customer"
                 user={user}
@@ -394,6 +414,7 @@ const CustomerDashboard = () => {
                 onClose={() => setIsProfileModalOpen(false)}
                 user={user}
                 onSave={handleProfileSave}
+                showFields={{ username: true, email: true, phone: true, address: true, password: true }}
             />
         </>
     );

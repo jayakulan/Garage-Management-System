@@ -22,7 +22,8 @@ const ServiceHistory = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                const myJobs = data.filter(job => Number(job.customer) === Number(user.user_id));
+                // Filter out DIAGNOSED status
+                const myJobs = data.filter(job => Number(job.customer) === Number(user.user_id) && job.status !== 'DIAGNOSED');
                 setJobs(myJobs);
             }
         } catch (error) {
@@ -79,7 +80,7 @@ const ServiceHistory = () => {
                                             className="flex flex-col gap-1 items-start hover:bg-slate-700 p-2 rounded transition-colors w-full text-left group"
                                         >
                                             <span className="text-white group-hover:text-blue-400 transition-colors">
-                                                ${job.invoice_details.grand_total}
+                                                Rs {job.invoice_details.grand_total}
                                             </span>
                                             <span className={`text-[10px] uppercase font-bold ${job.invoice_details.status === 'PAID' ? 'text-green-400' : 'text-red-400'}`}>
                                                 {job.invoice_details.status}
@@ -124,15 +125,15 @@ const ServiceHistory = () => {
                             <div className="space-y-3 pt-4 border-t border-slate-800">
                                 <div className="flex justify-between text-slate-300">
                                     <span>Parts Total</span>
-                                    <span>${selectedInvoice.parts_total}</span>
+                                    <span>Rs {selectedInvoice.parts_total}</span>
                                 </div>
                                 <div className="flex justify-between text-slate-300">
                                     <span>Labor Cost</span>
-                                    <span>${selectedInvoice.labor_cost}</span>
+                                    <span>Rs {selectedInvoice.labor_cost}</span>
                                 </div>
                                 <div className="flex justify-between text-white font-bold text-lg pt-4 border-t border-slate-700 mt-4">
                                     <span>Grand Total</span>
-                                    <span>${selectedInvoice.grand_total}</span>
+                                    <span>Rs {selectedInvoice.grand_total}</span>
                                 </div>
                             </div>
                         </div>

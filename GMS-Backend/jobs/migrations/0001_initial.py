@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('vehicle_reg_number', models.CharField(max_length=20)),
                 ('vehicle_model', models.CharField(max_length=100)),
                 ('reported_issues', models.TextField()),
-                ('status', models.CharField(choices=[('PENDING', 'Pending'), ('DIAGNOSED', 'Diagnosed'), ('IN_PROGRESS', 'In Progress'), ('READY', 'Ready for Delivery'), ('COMPLETED', 'Completed'), ('CANCELLED', 'Cancelled')], default='PENDING', max_length=20)),
+                ('status', models.CharField(choices=[('PENDING', 'Pending'), ('IN_PROGRESS', 'In Progress'), ('READY', 'Ready for Delivery'), ('COMPLETED', 'Completed'), ('CANCELLED', 'Cancelled')], default='PENDING', max_length=20)),
                 ('estimated_cost', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),

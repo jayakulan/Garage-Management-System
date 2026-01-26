@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Wrench, FileText, BarChart3, Settings, LogOut, TrendingUp, AlertCircle, Clock, CheckCircle } from 'lucide-react';
+import { Users, Wrench, FileText, BarChart3, Settings, LogOut, TrendingUp, AlertCircle, Clock, CheckCircle, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import EditProfileModal from '../../components/EditProfileModal';
 import UserManagement from './UserManagement';
 import InventoryManagement from './Inventory';
 import JobManagement from './JobManagement';
@@ -12,6 +13,7 @@ const AdminDashboard = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [stats, setStats] = useState({
         totalUsers: 0,
         activeJobs: 0,
@@ -45,7 +47,9 @@ const AdminDashboard = () => {
 
             // Calculate Stats
             const totalInventoryValue = invData.reduce((acc, part) => acc + (parseFloat(part.price) * part.quantity), 0);
-            const active = jobsData.filter(j => j.status === 'IN_PROGRESS' || j.status === 'DIAGNOSED').length;
+            // Filter out DIAGNOSED status from display
+            const activeJobs = jobsData.filter(j => j.status === 'IN_PROGRESS' && j.status !== 'DIAGNOSED');
+            const active = activeJobs.length;
             const completed = jobsData.filter(j => j.status === 'COMPLETED').length;
             const pending = jobsData.filter(j => j.status === 'PENDING').length;
             const lowStock = invData.filter(part => part.quantity < 5);
@@ -67,6 +71,16 @@ const AdminDashboard = () => {
     const handleLogout = () => {
         logout();
         navigate('/login');
+    };
+
+    const handleProfileClick = () => {
+        setIsProfileModalOpen(true);
+    };
+
+    const handleProfileSave = (updatedUser) => {
+        // Optionally update local state or refetch data
+        console.log('Profile updated:', updatedUser);
+        // You might want to refresh the token or user data here
     };
 
     const renderContent = () => {
@@ -261,14 +275,27 @@ const AdminDashboard = () => {
                             <p className="text-sm font-medium text-white">{user?.username}</p>
                             <p className="text-xs text-slate-400">{user?.role}</p>
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold">
-                            {user?.username?.charAt(0).toUpperCase()}
-                        </div>
+                        <button
+                            onClick={handleProfileClick}
+                            className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold border border-slate-600 hover:border-blue-500 hover:bg-slate-600 transition-all cursor-pointer group"
+                            title="Edit Profile"
+                        >
+                            {user?.username?.charAt(0).toUpperCase() || <User size={20} className="group-hover:scale-110 transition-transform" />}
+                        </button>
                     </div>
                 </header>
 
                 {renderContent()}
             </main>
+
+            {/* Edit Profile Modal */}
+            <EditProfileModal
+                isOpen={isProfileModalOpen}
+                onClose={() => setIsProfileModalOpen(false)}
+                user={user}
+                onSave={handleProfileSave}
+                showFields={{ username: true, email: true, phone: false, address: false, password: true }}
+            />
         </div>
     );
 };

@@ -80,7 +80,7 @@ const InventoryManagement = () => {
                                                     <span className="text-xs text-slate-500">units</span>
                                                 </div>
                                             </td>
-                                            <td className="p-5 text-slate-300">${part.price}</td>
+                                            <td className="p-5 text-slate-300">Rs {part.price}</td>
                                             <td className="p-5">
                                                 {part.quantity === 0 ? (
                                                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/30">
