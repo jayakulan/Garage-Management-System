@@ -20,8 +20,10 @@ const BillingManagement = () => {
             });
             if (response.ok) {
                 const data = await response.json();
+                // Handle both paginated (data.results) and non-paginated (data) responses
+                const jobsArray = data.results || data;
                 // Filter only jobs that are COMPLETED or READY
-                const billableJobs = data.filter(job => job.status === 'COMPLETED' || job.status === 'READY');
+                const billableJobs = jobsArray.filter(job => job.status === 'COMPLETED' || job.status === 'READY');
                 setJobs(billableJobs);
             }
         } catch (error) {
@@ -90,7 +92,9 @@ const BillingManagement = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                const inv = data.find(i => i.job === job.id);
+                // Handle both paginated (data.results) and non-paginated (data) responses
+                const invoicesArray = data.results || data;
+                const inv = invoicesArray.find(i => i.job === job.id);
                 if (inv) {
                     setSelectedInvoice(inv);
                     setViewModal(true);

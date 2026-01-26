@@ -38,7 +38,8 @@ const CustomerDashboard = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                const myJobs = data.filter(job => Number(job.customer) === Number(user.user_id));
+                const allJobs = data.results || data;
+                const myJobs = allJobs.filter(job => Number(job.customer) === Number(user.user_id));
                 setJobs(myJobs);
 
                 // Get recent jobs (last 5)

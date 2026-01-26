@@ -18,6 +18,7 @@ const Signup = () => {
     const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     // Validation functions
     const validateUsername = (username) => {
@@ -131,7 +132,7 @@ const Signup = () => {
             await signup(signupData);
             navigate('/login');
         } catch (err) {
-            setError('Signup failed. Please check your inputs.');
+            setError(err.message || 'Signup failed. Please check your inputs.');
             console.error(err);
         } finally {
             setLoading(false);
@@ -259,7 +260,7 @@ const Signup = () => {
                                     onClick={() => setShowPassword(!showPassword)}
                                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-blue-500 transition-colors"
                                 >
-                                    {/* {showPassword ? <EyeOff size={20} /> : <Eye size={20} />} */}
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
                                 {errors.password && (
                                     <p className="text-red-500 text-xs mt-1">{errors.password}</p>
@@ -281,7 +282,7 @@ const Signup = () => {
                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-blue-500 transition-colors"
                                 >
-                                    {/* {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />} */}
+                                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
                                 {errors.confirmPassword && (
                                     <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>

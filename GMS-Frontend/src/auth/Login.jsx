@@ -16,6 +16,7 @@ const Login = () => {
     const [forgotSuccess, setForgotSuccess] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     // Email validation
     const validateEmail = (emailValue) => {
@@ -70,6 +71,8 @@ const Login = () => {
             return;
         }
 
+        setLoading(true);
+
         try {
             const user = await login(email, password);
             // Redirect based on role
@@ -81,8 +84,9 @@ const Login = () => {
                 navigate('/customer/dashboard');
             }
         } catch (err) {
-            setError('Invalid credentials');
+            setError(err.message || 'Invalid credentials');
             console.error(err);
+            setLoading(false);
         }
     };
 

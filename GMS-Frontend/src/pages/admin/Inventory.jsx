@@ -27,7 +27,15 @@ const InventoryManagement = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                setParts(data);
+                // Handle paginated response which comes in { count, next, previous, results: [] } format
+                if (data.results && Array.isArray(data.results)) {
+                    setParts(data.results);
+                } else if (Array.isArray(data)) {
+                    setParts(data);
+                } else {
+                    console.error("Unexpected API response format:", data);
+                    setParts([]);
+                }
             }
         } catch (error) {
             console.error(error);
