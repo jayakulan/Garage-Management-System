@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { Check } from 'lucide-react';
 
 const BillingManagement = () => {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [toast, setToast] = useState({ message: '', type: '', visible: false });
 
     const token = localStorage.getItem('token');
+
+    const showToast = (message, type) => {
+        setToast({ message, type, visible: true });
+        setTimeout(() => {
+            setToast({ message: '', type: '', visible: false });
+        }, 3000);
+    };
 
     useEffect(() => {
         fetchJobs();
@@ -61,15 +70,16 @@ const BillingManagement = () => {
 
             if (response.ok) {
                 const invoice = await response.json();
-                alert(`Invoice Generated! Total: $${invoice.grand_total}`);
+                showToast(`Invoice generated! Total: $${invoice.grand_total}`, 'success');
                 setGenerateModal(false);
                 fetchJobs(); // Refresh list to show 'View Invoice' button
             } else {
                 const error = await response.json();
-                alert('Error creating invoice: ' + JSON.stringify(error));
+                showToast('Error creating invoice. Please try again.', 'error');
             }
         } catch (error) {
             console.error(error);
+            showToast('Error generating invoice', 'error');
         }
     };
 
@@ -119,14 +129,17 @@ const BillingManagement = () => {
                 body: JSON.stringify({ status: 'PAID' })
             });
             if (response.ok) {
-                alert('Invoice Marked as PAID');
+                showToast('Invoice marked as PAID!', 'success');
                 setSelectedInvoice({ ...selectedInvoice, status: 'PAID' });
                 // Also update Job status to COMPLETED if not already
                 updateJobStatus(selectedInvoice.job, 'COMPLETED');
                 fetchJobs(); // Refresh main list
+            } else {
+                showToast('Failed to mark invoice as paid', 'error');
             }
         } catch (error) {
             console.error(error);
+            showToast('Error updating invoice', 'error');
         }
     };
 
@@ -143,6 +156,24 @@ const BillingManagement = () => {
 
     return (
         <div className="text-white">
+            {/* Toast Notification */}
+            {toast.visible && (
+                <div className="fixed top-4 right-4 z-50 animate-in fade-in slide-in-from-top-4">
+                    <div className={`p-4 rounded-lg flex items-center gap-3 shadow-lg ${
+                        toast.type === 'success' 
+                            ? 'bg-green-600 text-white' 
+                            : 'bg-red-600 text-white'
+                    }`}>
+                        {toast.type === 'success' ? (
+                            <Check size={20} />
+                        ) : (
+                            <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        )}
+                        {toast.message}
+                    </div>
+                </div>
+            )}
+
             <h2 className="text-2xl font-bold mb-6">Billing & Invoices</h2>
 
             {jobs.length === 0 ? (

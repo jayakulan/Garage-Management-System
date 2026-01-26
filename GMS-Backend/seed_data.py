@@ -101,7 +101,7 @@ for part_data in parts_data:
 # 3. Create Sample Job Cards
 print("\n✓ Creating sample job cards...")
 
-job_statuses = ['PENDING', 'DIAGNOSED', 'IN_PROGRESS', 'READY', 'COMPLETED']
+job_statuses = ['PENDING', 'IN_PROGRESS', 'READY', 'COMPLETED']
 job_cards = []
 
 for i in range(5):

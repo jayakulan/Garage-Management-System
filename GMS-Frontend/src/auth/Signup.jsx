@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, Wrench, ArrowRight, Mail, Lock, Phone, UserCircle, Eye, EyeOff } from 'lucide-react';
+import { User, Wrench, ArrowRight, Mail, Lock, Phone, UserCircle, Eye, EyeOff, Check } from 'lucide-react';
 
 const Signup = () => {
     const { signup } = useAuth();
@@ -18,7 +18,7 @@ const Signup = () => {
     const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [toast, setToast] = useState({ message: '', type: '', visible: false });
 
     // Validation functions
     const validateUsername = (username) => {
@@ -85,18 +85,11 @@ const Signup = () => {
         setFormData({ ...formData, role });
     };
 
-    const validateInputs = () => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formData.email)) {
-            return "Invalid email format";
-        }
-        if (formData.password.length < 6) {
-            return "Password must be at least 6 characters long";
-        }
-        if (formData.password !== formData.confirmPassword) {
-            return "Passwords do not match";
-        }
-        return null;
+    const showToast = (message, type) => {
+        setToast({ message, type, visible: true });
+        setTimeout(() => {
+            setToast({ message: '', type: '', visible: false });
+        }, 3000);
     };
 
     const handleSubmit = async (e) => {
@@ -130,9 +123,13 @@ const Signup = () => {
         try {
             const { confirmPassword, ...signupData } = formData;
             await signup(signupData);
-            navigate('/login');
+            showToast('Account created successfully! Redirecting to login...', 'success');
+            setTimeout(() => {
+                navigate('/login');
+            }, 1500);
         } catch (err) {
-            setError(err.message || 'Signup failed. Please check your inputs.');
+            setError('Signup failed. Please check your inputs.');
+            showToast('Signup failed. Please try again.', 'error');
             console.error(err);
         } finally {
             setLoading(false);
@@ -141,6 +138,23 @@ const Signup = () => {
 
     return (
         <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-slate-950 text-white">
+            {/* Toast Notification */}
+            {toast.visible && (
+                <div className="fixed top-4 right-4 z-50 animate-in fade-in slide-in-from-top-4">
+                    <div className={`p-4 rounded-lg flex items-center gap-3 shadow-lg ${toast.type === 'success'
+                            ? 'bg-green-600 text-white'
+                            : 'bg-red-600 text-white'
+                        }`}>
+                        {toast.type === 'success' ? (
+                            <Check size={20} />
+                        ) : (
+                            <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        )}
+                        {toast.message}
+                    </div>
+                </div>
+            )}
+
             {/* Left Side - Brand Awareness */}
             <div className="flex flex-col justify-between bg-slate-900 p-6 md:p-12 relative overflow-hidden text-white">
                 <div className="absolute top-0 left-0 w-full h-full">

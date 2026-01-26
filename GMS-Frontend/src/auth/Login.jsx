@@ -16,7 +16,7 @@ const Login = () => {
     const [forgotSuccess, setForgotSuccess] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [toast, setToast] = useState({ message: '', type: '', visible: false });
 
     // Email validation
     const validateEmail = (emailValue) => {
@@ -59,6 +59,13 @@ const Login = () => {
         if (value) validatePassword(value);
     };
 
+    const showToast = (message, type) => {
+        setToast({ message, type, visible: true });
+        setTimeout(() => {
+            setToast({ message: '', type: '', visible: false });
+        }, 3000);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -75,16 +82,20 @@ const Login = () => {
 
         try {
             const user = await login(email, password);
+            showToast('Login successful! Redirecting...', 'success');
             // Redirect based on role
-            if (user.role === 'ADMIN') {
-                navigate('/admin/dashboard');
-            } else if (user.role === 'MECHANIC') {
-                navigate('/mechanic/dashboard');
-            } else {
-                navigate('/customer/dashboard');
-            }
+            setTimeout(() => {
+                if (user.role === 'ADMIN') {
+                    navigate('/admin/dashboard');
+                } else if (user.role === 'MECHANIC') {
+                    navigate('/mechanic/dashboard');
+                } else {
+                    navigate('/customer/dashboard');
+                }
+            }, 500);
         } catch (err) {
-            setError(err.message || 'Invalid credentials');
+            setError('Invalid credentials');
+            showToast('Invalid email/username or password', 'error');
             console.error(err);
             setLoading(false);
         }
@@ -109,12 +120,14 @@ const Login = () => {
             // Simulate API call - replace with actual endpoint
             console.log('Reset password link sent to:', forgotEmail);
             setForgotSuccess('Password reset link sent to your email');
+            showToast('Reset link sent! Check your email', 'success');
             setForgotEmail('');
             setTimeout(() => {
                 setShowForgotModal(false);
             }, 2000);
         } catch (err) {
             setForgotError('Failed to send reset link. Please try again.');
+            showToast('Failed to send reset link', 'error');
             console.error(err);
         }
     };
@@ -128,6 +141,23 @@ const Login = () => {
 
     return (
         <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-slate-950 text-white">
+            {/* Toast Notification */}
+            {toast.visible && (
+                <div className="fixed top-4 right-4 z-50 animate-in fade-in slide-in-from-top-4">
+                    <div className={`p-4 rounded-lg flex items-center gap-3 shadow-lg ${toast.type === 'success'
+                            ? 'bg-green-600 text-white'
+                            : 'bg-red-600 text-white'
+                        }`}>
+                        {toast.type === 'success' ? (
+                            <Check size={20} />
+                        ) : (
+                            <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        )}
+                        {toast.message}
+                    </div>
+                </div>
+            )}
+
             {/* Left Side - Brand Context */}
             <div className="flex flex-col justify-between bg-slate-900 p-6 md:p-12 relative overflow-hidden text-white">
                 {/* Background Blobs */}
@@ -207,7 +237,7 @@ const Login = () => {
                                     onClick={() => setShowPassword(!showPassword)}
                                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-blue-500 transition-colors"
                                 >
-                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    {/* {showPassword ? <EyeOff size={20} /> : <Eye size={20} />} */}
                                 </button>
                                 {passwordError && (
                                     <p className="text-red-500 text-xs mt-1">{passwordError}</p>
