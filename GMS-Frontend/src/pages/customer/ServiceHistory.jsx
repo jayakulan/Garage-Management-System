@@ -22,8 +22,10 @@ const ServiceHistory = () => {
             });
             if (response.ok) {
                 const data = await response.json();
+                // Handle both paginated (data.results) and non-paginated (data) responses
+                const jobsList = data.results || data;
                 // Filter out DIAGNOSED status
-                const myJobs = data.filter(job => Number(job.customer) === Number(user.user_id) && job.status !== 'DIAGNOSED');
+                const myJobs = jobsList.filter(job => Number(job.customer) === Number(user.user_id) && job.status !== 'DIAGNOSED');
                 setJobs(myJobs);
             }
         } catch (error) {

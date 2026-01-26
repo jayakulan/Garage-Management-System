@@ -17,7 +17,10 @@ const InventoryManagement = () => {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
-                setParts(await response.json());
+                const data = await response.json();
+                // Handle both paginated (data.results) and non-paginated (data) responses
+                const partsArray = data.results || data;
+                setParts(partsArray);
             }
         } catch (error) {
             console.error('Error fetching parts:', error);

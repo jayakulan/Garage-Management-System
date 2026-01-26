@@ -39,8 +39,13 @@ const CustomerDashboard = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                // Filter out DIAGNOSED status
-                const myJobs = data.filter(job => Number(job.customer) === Number(user.user_id) && job.status !== 'DIAGNOSED');
+                // Handle both paginated (data.results) and non-paginated (data) responses
+                const allJobs = data.results || data;
+                // Filter out DIAGNOSED status and get only customer's jobs
+                const myJobs = allJobs.filter(job =>
+                    Number(job.customer) === Number(user.user_id) &&
+                    job.status !== 'DIAGNOSED'
+                );
                 setJobs(myJobs);
 
                 // Get recent jobs (last 5)
@@ -382,11 +387,10 @@ const CustomerDashboard = () => {
             {/* Toast Notification */}
             {toast.visible && (
                 <div className="fixed top-4 right-4 z-50 animate-in fade-in slide-in-from-top-4">
-                    <div className={`p-4 rounded-lg flex items-center gap-3 shadow-lg ${
-                        toast.type === 'success' 
-                            ? 'bg-green-600 text-white' 
+                    <div className={`p-4 rounded-lg flex items-center gap-3 shadow-lg ${toast.type === 'success'
+                            ? 'bg-green-600 text-white'
                             : 'bg-red-600 text-white'
-                    }`}>
+                        }`}>
                         {toast.type === 'success' ? (
                             <Check size={20} />
                         ) : (

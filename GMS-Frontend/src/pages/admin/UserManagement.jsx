@@ -34,7 +34,7 @@ const UserManagement = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                setUsers(data);
+                setUsers(data.results || data);
             }
         } catch (error) {
             console.error('Error fetching users:', error);

@@ -32,7 +32,8 @@ const JobManagement = () => {
             if (response.ok) {
                 const data = await response.json();
                 // Filter out DIAGNOSED status
-                const filteredData = data.filter(job => job.status !== 'DIAGNOSED');
+                const jobsList = data.results || data;
+                const filteredData = jobsList.filter(job => job.status !== 'DIAGNOSED');
                 setJobs(filteredData);
             }
         } catch (error) {
@@ -48,8 +49,9 @@ const JobManagement = () => {
             if (response.ok) {
                 const data = await response.json();
                 // Filter roles
-                setCustomers(data.filter(u => u.role === 'CUSTOMER'));
-                setMechanics(data.filter(u => u.role === 'MECHANIC'));
+                const users = data.results || data;
+                setCustomers(users.filter(u => u.role === 'CUSTOMER'));
+                setMechanics(users.filter(u => u.role === 'MECHANIC'));
             }
         } catch (error) {
             console.error('Error fetching users:', error);

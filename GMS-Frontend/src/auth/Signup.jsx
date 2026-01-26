@@ -62,7 +62,7 @@ const Signup = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
-        
+
         // Real-time validation
         let error = '';
         if (name === 'username') error = validateUsername(value);
@@ -118,6 +118,8 @@ const Signup = () => {
             return;
         }
 
+        setLoading(true);
+
         try {
             const { confirmPassword, ...signupData } = formData;
             await signup(signupData);
@@ -129,6 +131,8 @@ const Signup = () => {
             setError('Signup failed. Please check your inputs.');
             showToast('Signup failed. Please try again.', 'error');
             console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -137,11 +141,10 @@ const Signup = () => {
             {/* Toast Notification */}
             {toast.visible && (
                 <div className="fixed top-4 right-4 z-50 animate-in fade-in slide-in-from-top-4">
-                    <div className={`p-4 rounded-lg flex items-center gap-3 shadow-lg ${
-                        toast.type === 'success' 
-                            ? 'bg-green-600 text-white' 
+                    <div className={`p-4 rounded-lg flex items-center gap-3 shadow-lg ${toast.type === 'success'
+                            ? 'bg-green-600 text-white'
                             : 'bg-red-600 text-white'
-                    }`}>
+                        }`}>
                         {toast.type === 'success' ? (
                             <Check size={20} />
                         ) : (
@@ -218,9 +221,8 @@ const Signup = () => {
                                 </div>
                                 <input id="username" name="username" type="text" required
                                     value={formData.username} onChange={handleChange}
-                                    className={`block w-full pl-10 pr-3 py-3 bg-slate-900 border rounded-xl focus:ring-2 focus:ring-blue-500/20 text-white placeholder-slate-600 transition-all outline-none ${
-                                        errors.username ? 'border-red-500 focus:border-red-500' : 'border-slate-800 focus:border-blue-500'
-                                    }`}
+                                    className={`block w-full pl-10 pr-3 py-3 bg-slate-900 border rounded-xl focus:ring-2 focus:ring-blue-500/20 text-white placeholder-slate-600 transition-all outline-none ${errors.username ? 'border-red-500 focus:border-red-500' : 'border-slate-800 focus:border-blue-500'
+                                        }`}
                                     placeholder="Username" />
                                 {errors.username && (
                                     <p className="text-red-500 text-xs mt-1">{errors.username}</p>
@@ -234,9 +236,8 @@ const Signup = () => {
                                 </div>
                                 <input id="email" name="email" type="email" required
                                     value={formData.email} onChange={handleChange}
-                                    className={`block w-full pl-10 pr-3 py-3 bg-slate-900 border rounded-xl focus:ring-2 focus:ring-blue-500/20 text-white placeholder-slate-600 transition-all outline-none ${
-                                        errors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-800 focus:border-blue-500'
-                                    }`}
+                                    className={`block w-full pl-10 pr-3 py-3 bg-slate-900 border rounded-xl focus:ring-2 focus:ring-blue-500/20 text-white placeholder-slate-600 transition-all outline-none ${errors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-800 focus:border-blue-500'
+                                        }`}
                                     placeholder="Email address" />
                                 {errors.email && (
                                     <p className="text-red-500 text-xs mt-1">{errors.email}</p>
@@ -250,9 +251,8 @@ const Signup = () => {
                                 </div>
                                 <input id="phone" name="phone" type="text" required
                                     value={formData.phone} onChange={handleChange}
-                                    className={`block w-full pl-10 pr-3 py-3 bg-slate-900 border rounded-xl focus:ring-2 focus:ring-blue-500/20 text-white placeholder-slate-600 transition-all outline-none ${
-                                        errors.phone ? 'border-red-500 focus:border-red-500' : 'border-slate-800 focus:border-blue-500'
-                                    }`}
+                                    className={`block w-full pl-10 pr-3 py-3 bg-slate-900 border rounded-xl focus:ring-2 focus:ring-blue-500/20 text-white placeholder-slate-600 transition-all outline-none ${errors.phone ? 'border-red-500 focus:border-red-500' : 'border-slate-800 focus:border-blue-500'
+                                        }`}
                                     placeholder="Phone number" />
                                 {errors.phone && (
                                     <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
@@ -266,16 +266,15 @@ const Signup = () => {
                                 </div>
                                 <input id="password" name="password" type={showPassword ? "text" : "password"} required
                                     value={formData.password} onChange={handleChange}
-                                    className={`block w-full pl-10 pr-12 py-3 bg-slate-900 border rounded-xl focus:ring-2 focus:ring-blue-500/20 text-white placeholder-slate-600 transition-all outline-none ${
-                                        errors.password ? 'border-red-500 focus:border-red-500' : 'border-slate-800 focus:border-blue-500'
-                                    }`}
+                                    className={`block w-full pl-10 pr-12 py-3 bg-slate-900 border rounded-xl focus:ring-2 focus:ring-blue-500/20 text-white placeholder-slate-600 transition-all outline-none ${errors.password ? 'border-red-500 focus:border-red-500' : 'border-slate-800 focus:border-blue-500'
+                                        }`}
                                     placeholder="Password" />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
                                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-blue-500 transition-colors"
                                 >
-                                    {/* {showPassword ? <EyeOff size={20} /> : <Eye size={20} />} */}
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
                                 {errors.password && (
                                     <p className="text-red-500 text-xs mt-1">{errors.password}</p>
@@ -289,16 +288,15 @@ const Signup = () => {
                                 </div>
                                 <input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? "text" : "password"} required
                                     value={formData.confirmPassword} onChange={handleChange}
-                                    className={`block w-full pl-10 pr-12 py-3 bg-slate-900 border rounded-xl focus:ring-2 focus:ring-blue-500/20 text-white placeholder-slate-600 transition-all outline-none ${
-                                        errors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-800 focus:border-blue-500'
-                                    }`}
+                                    className={`block w-full pl-10 pr-12 py-3 bg-slate-900 border rounded-xl focus:ring-2 focus:ring-blue-500/20 text-white placeholder-slate-600 transition-all outline-none ${errors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-800 focus:border-blue-500'
+                                        }`}
                                     placeholder="Confirm Password" />
                                 <button
                                     type="button"
                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-blue-500 transition-colors"
                                 >
-                                    {/* {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />} */}
+                                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
                                 {errors.confirmPassword && (
                                     <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
@@ -306,8 +304,19 @@ const Signup = () => {
                             </div>
                         </div>
 
-                        <button type="submit" className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl shadow-lg shadow-blue-500/20 text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5">
-                            Create Account <ArrowRight size={18} />
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl shadow-lg shadow-blue-500/20 text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        >
+                            {loading ? (
+                                <span className="flex items-center gap-2">
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                    Creating Account...
+                                </span>
+                            ) : (
+                                <>Create Account <ArrowRight size={18} /></>
+                            )}
                         </button>
                     </form>
 

@@ -38,7 +38,10 @@ export const AuthProvider = ({ children }) => {
                 body: JSON.stringify({ username: email, password }), // Backend expects 'username' if using standard User model, but user enters email usually. I'll pass email as username for now or check if I need to adjust backend.
             });
 
-            if (!response.ok) throw new Error('Login failed');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Login failed');
+            }
 
             const data = await response.json();
             localStorage.setItem('token', data.access);
@@ -62,7 +65,12 @@ export const AuthProvider = ({ children }) => {
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(JSON.stringify(errorData));
+                // Django DRF typically returns field-specific errors or a 'detail' key
+                const errorMessage = errorData.detail ||
+                    (Object.keys(errorData).length > 0
+                        ? Object.entries(errorData).map(([key, val]) => `${key}: ${val}`).join(', ')
+                        : 'Signup failed');
+                throw new Error(errorMessage);
             }
             return await response.json();
         } catch (error) {

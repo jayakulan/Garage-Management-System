@@ -16,6 +16,7 @@ const Login = () => {
     const [forgotSuccess, setForgotSuccess] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const [loading, setLoading] = useState(false);
     const [toast, setToast] = useState({ message: '', type: '', visible: false });
 
     // Email validation
@@ -78,6 +79,8 @@ const Login = () => {
             return;
         }
 
+        setLoading(true);
+
         try {
             const user = await login(email, password);
             showToast('Login successful! Redirecting...', 'success');
@@ -95,6 +98,7 @@ const Login = () => {
             setError('Invalid credentials');
             showToast('Invalid email/username or password', 'error');
             console.error(err);
+            setLoading(false);
         }
     };
 
@@ -141,11 +145,10 @@ const Login = () => {
             {/* Toast Notification */}
             {toast.visible && (
                 <div className="fixed top-4 right-4 z-50 animate-in fade-in slide-in-from-top-4">
-                    <div className={`p-4 rounded-lg flex items-center gap-3 shadow-lg ${
-                        toast.type === 'success' 
-                            ? 'bg-green-600 text-white' 
-                            : 'bg-red-600 text-white'
-                    }`}>
+                    <div className={`p-4 rounded-lg flex items-center gap-3 shadow-lg ${toast.type === 'success'
+                        ? 'bg-green-600 text-white'
+                        : 'bg-red-600 text-white'
+                        }`}>
                         {toast.type === 'success' ? (
                             <Check size={20} />
                         ) : (
@@ -212,9 +215,8 @@ const Login = () => {
                                 </div>
                                 <input id="email" name="email" type="text" required
                                     value={email} onChange={handleEmailChange}
-                                    className={`block w-full pl-10 pr-3 py-3 bg-slate-900 border rounded-xl focus:ring-2 focus:ring-blue-500/20 text-white placeholder-slate-600 transition-all outline-none ${
-                                        emailError ? 'border-red-500 focus:border-red-500' : 'border-slate-800 focus:border-blue-500'
-                                    }`}
+                                    className={`block w-full pl-10 pr-3 py-3 bg-slate-900 border rounded-xl focus:ring-2 focus:ring-blue-500/20 text-white placeholder-slate-600 transition-all outline-none ${emailError ? 'border-red-500 focus:border-red-500' : 'border-slate-800 focus:border-blue-500'
+                                        }`}
                                     placeholder="Username or Email" />
                                 {emailError && (
                                     <p className="text-red-500 text-xs mt-1">{emailError}</p>
@@ -228,9 +230,8 @@ const Login = () => {
                                 </div>
                                 <input id="password" name="password" type={showPassword ? "text" : "password"} required
                                     value={password} onChange={handlePasswordChange}
-                                    className={`block w-full pl-10 pr-12 py-3 bg-slate-900 border rounded-xl focus:ring-2 focus:ring-blue-500/20 text-white placeholder-slate-600 transition-all outline-none ${
-                                        passwordError ? 'border-red-500 focus:border-red-500' : 'border-slate-800 focus:border-blue-500'
-                                    }`}
+                                    className={`block w-full pl-10 pr-12 py-3 bg-slate-900 border rounded-xl focus:ring-2 focus:ring-blue-500/20 text-white placeholder-slate-600 transition-all outline-none ${passwordError ? 'border-red-500 focus:border-red-500' : 'border-slate-800 focus:border-blue-500'
+                                        }`}
                                     placeholder="Password" />
                                 <button
                                     type="button"
@@ -259,8 +260,19 @@ const Login = () => {
                             </button>
                         </div>
 
-                        <button type="submit" className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl shadow-lg shadow-blue-500/20 text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5">
-                            Sign In <ArrowRight size={18} />
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl shadow-lg shadow-blue-500/20 text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                        >
+                            {loading ? (
+                                <span className="flex items-center gap-2">
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                    Signing In...
+                                </span>
+                            ) : (
+                                <>Sign In <ArrowRight size={18} /></>
+                            )}
                         </button>
                     </form>
 
