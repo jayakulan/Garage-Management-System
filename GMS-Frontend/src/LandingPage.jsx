@@ -38,11 +38,9 @@ const LandingPage = () => {
             <nav className="fixed w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
-                        <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                                <span className="font-bold text-white text-lg">G</span>
-                            </div>
-                            <span className="font-bold text-xl tracking-tight text-slate-100">GarageFlow</span>
+                        <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer">
+                            <img src="/log.jpeg" alt="GarageFlow Logo" className="w-14 h-14 rounded-lg shadow-lg shadow-blue-500/30 object-cover border border-blue-500/50" />
+                            <span className="font-bold text-2xl tracking-tight text-white">GarageFlow</span>
                         </div>
 
                         {/* Desktop Menu */}
@@ -221,10 +219,10 @@ const LandingPage = () => {
                         {/* Brand Column */}
                         <div className="col-span-1 md:col-span-2">
                             <div className="flex items-center gap-2 mb-6">
-                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                                    <span className="font-bold text-white text-lg">G</span>
-                                </div>
-                                <span className="font-bold text-2xl text-slate-100">GarageFlow</span>
+                                <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer">
+                            <img src="/log.jpeg" alt="GarageFlow Logo" className="w-14 h-14 rounded-lg shadow-lg shadow-blue-500/30 object-cover border border-blue-500/50" />
+                            <span className="font-bold text-2xl tracking-tight text-white">GarageFlow</span>
+                        </div>
                             </div>
                             <p className="text-slate-400 max-w-sm leading-relaxed mb-6">
                                 The ultimate solution for modern workshops. Streamline operations, boost efficiency, and grow your business with our all-in-one platform.
@@ -246,10 +244,10 @@ const LandingPage = () => {
                         <div>
                             <h4 className="font-bold text-white text-lg mb-6">Product</h4>
                             <ul className="space-y-4">
-                                <li><a href="#" className="text-slate-400 hover:text-blue-400 transition-colors">Features</a></li>
-                                <li><a href="#" className="text-slate-400 hover:text-blue-400 transition-colors">Pricing</a></li>
-                                <li><a href="#" className="text-slate-400 hover:text-blue-400 transition-colors">Testimonials</a></li>
-                                <li><a href="#" className="text-slate-400 hover:text-blue-400 transition-colors">API Documentation</a></li>
+                                <li><button onClick={(e) => scrollToSection(e, 'features')} className="text-slate-400 hover:text-blue-400 transition-colors bg-transparent border-none cursor-pointer">Features</button></li>
+                                <li><button onClick={(e) => scrollToSection(e, 'how-it-works')} className="text-slate-400 hover:text-blue-400 transition-colors bg-transparent border-none cursor-pointer">How it Works</button></li>
+                                <li><button onClick={(e) => scrollToSection(e, 'testimonials')} className="text-slate-400 hover:text-blue-400 transition-colors bg-transparent border-none cursor-pointer">Testimonials</button></li>
+                                <li><Link to="/login" className="text-slate-400 hover:text-blue-400 transition-colors">Login</Link></li>
                             </ul>
                         </div>
 
@@ -259,10 +257,10 @@ const LandingPage = () => {
                             <ul className="space-y-4">
                                 <li className="flex items-start gap-3 text-slate-400">
                                     <Mail size={20} className="text-blue-400 shrink-0" />
-                                    <span>support@gms.com</span>
+                                    <span>garageflow@gms.com</span>
                                 </li>
                                 <li className="text-slate-400">
-                                    123 Innovation Dr,<br />
+                                    123 Colombo,<br />
                                     Tech City, TC 90210
                                 </li>
                             </ul>
