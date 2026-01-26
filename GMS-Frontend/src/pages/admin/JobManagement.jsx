@@ -32,7 +32,8 @@ const JobManagement = () => {
             if (response.ok) {
                 const data = await response.json();
                 // Filter out DIAGNOSED status
-                const filteredData = data.filter(job => job.status !== 'DIAGNOSED');
+                const jobsList = data.results || data;
+                const filteredData = jobsList.filter(job => job.status !== 'DIAGNOSED');
                 setJobs(filteredData);
             }
         } catch (error) {
