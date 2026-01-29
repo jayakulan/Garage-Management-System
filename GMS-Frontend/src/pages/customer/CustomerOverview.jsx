@@ -88,14 +88,14 @@ const CustomerOverview = () => {
     return (
         <div className="space-y-8">
             {/* Welcome Section */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 rounded-2xl shadow-xl">
+            {/* <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 rounded-2xl shadow-xl">
                 <h1 className="text-3xl font-bold text-white mb-2">
                     Welcome back, {user?.username || 'Customer'}! 👋
                 </h1>
                 <p className="text-blue-100">
                     Here's what's happening with your vehicles today.
                 </p>
-            </div>
+            </div> */}
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -147,7 +147,7 @@ const CustomerOverview = () => {
                         <TrendingUp className="w-5 h-5 text-yellow-400" />
                     </div>
                     <h3 className="text-slate-400 text-sm font-medium mb-1">Total Spent</h3>
-                    <p className="text-3xl font-bold text-white">₹{totalSpent.toFixed(2)}</p>
+                    <p className="text-3xl font-bold text-white">Rs {totalSpent.toFixed(2)}</p>
                     <p className="text-xs text-slate-500 mt-2">All time</p>
                 </div>
             </div>

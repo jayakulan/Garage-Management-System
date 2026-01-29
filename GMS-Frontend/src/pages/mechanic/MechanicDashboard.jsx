@@ -46,8 +46,8 @@ const MechanicDashboard = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                // Filter jobs where assigned_mechanic matches current user ID and exclude DIAGNOSED status
-                const myJobs = data.filter(job => Number(job.assigned_mechanic) === Number(user.user_id) && job.status !== 'DIAGNOSED');
+                // Filter jobs where assigned_mechanic matches current user ID and exclude IN_PROGRESS status
+                const myJobs = data.filter(job => Number(job.assigned_mechanic) === Number(user.user_id) && job.status !== 'IN_PROGRESS');
                 setJobs(myJobs);
             }
         } catch (error) {

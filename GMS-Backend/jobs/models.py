@@ -5,7 +5,6 @@ from inventory.models import Part
 class JobCard(models.Model):
     STATUS_CHOICES = (
         ('PENDING', 'Pending'),
-        ('DIAGNOSED', 'Diagnosed'),  # Keep for existing data, hidden from frontend
         ('IN_PROGRESS', 'In Progress'),
         ('READY', 'Ready for Delivery'),
         ('COMPLETED', 'Completed'),

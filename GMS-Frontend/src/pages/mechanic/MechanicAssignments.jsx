@@ -178,7 +178,6 @@ const MechanicAssignments = () => {
                                         onChange={e => setNewStatus(e.target.value)}
                                     >
                                         <option value="PENDING">Pending</option>
-                                        <option value="DIAGNOSED">Diagnosed</option>
                                         <option value="IN_PROGRESS">In Progress</option>
                                         <option value="READY">Ready for Delivery</option>
                                         <option value="COMPLETED">Completed</option>
