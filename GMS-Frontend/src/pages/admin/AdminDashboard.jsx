@@ -42,8 +42,7 @@ const AdminDashboard = () => {
 
             // Calculate Stats
             const totalInventoryValue = invList.reduce((acc, part) => acc + (parseFloat(part.price) * part.quantity), 0);
-            // Filter out DIAGNOSED status from display
-            const activeJobs = jobsList.filter(j => j.status === 'IN_PROGRESS' && j.status !== 'DIAGNOSED');
+            const activeJobs = jobsList.filter(j => j.status === 'IN_PROGRESS');
             const active = activeJobs.length;
             const completed = jobsList.filter(j => j.status === 'COMPLETED').length;
             const pending = jobsList.filter(j => j.status === 'PENDING').length;

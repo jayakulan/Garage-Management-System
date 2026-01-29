@@ -41,10 +41,10 @@ const CustomerDashboard = () => {
                 const data = await response.json();
                 // Handle both paginated (data.results) and non-paginated (data) responses
                 const allJobs = data.results || data;
-                // Filter out DIAGNOSED status and get only customer's jobs
+                // Filter outIN_PROGRESS status and get only customer's jobs
                 const myJobs = allJobs.filter(job =>
                     Number(job.customer) === Number(user.user_id) &&
-                    job.status !== 'DIAGNOSED'
+                    job.status !== 'IN_PROGRESS'
                 );
                 setJobs(myJobs);
 
@@ -115,8 +115,8 @@ const CustomerDashboard = () => {
     };
 
     const renderOverview = () => {
-        // Filter out DIAGNOSED status from display
-        const validJobs = jobs.filter(j => j.status !== 'DIAGNOSED');
+        // Filter out IN_PROGRESS status from display
+        const validJobs = jobs.filter(j => j.status !== 'IN_PROGRESS');
         const activeJobs = validJobs.filter(j => j.status !== 'COMPLETED' && j.status !== 'CANCELLED').length;
         const completedJobs = validJobs.filter(j => j.status === 'COMPLETED').length;
         const pendingJobs = validJobs.filter(j => j.status === 'PENDING').length;

@@ -24,8 +24,8 @@ const ServiceHistory = () => {
                 const data = await response.json();
                 // Handle both paginated (data.results) and non-paginated (data) responses
                 const jobsList = data.results || data;
-                // Filter out DIAGNOSED status
-                const myJobs = jobsList.filter(job => Number(job.customer) === Number(user.user_id) && job.status !== 'DIAGNOSED');
+                // Filter out IN_PROGRESS status
+                const myJobs = jobsList.filter(job => Number(job.customer) === Number(user.user_id) && job.status !== 'IN_PROGRESS');
                 setJobs(myJobs);
             }
         } catch (error) {
