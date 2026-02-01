@@ -34,7 +34,8 @@ const UserManagement = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                setUsers(data.results || data);
+                const allUsers = data.results || data;
+                setUsers(allUsers.filter(u => u.role !== 'ADMIN'));
             }
         } catch (error) {
             console.error('Error fetching users:', error);
@@ -89,7 +90,9 @@ const UserManagement = () => {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    role: selectedUser.role
+                    username: selectedUser.username,
+                    email: selectedUser.email,
+                    phone: selectedUser.phone
                 })
             });
 
@@ -172,13 +175,13 @@ const UserManagement = () => {
                                     <span className="text-green-400 text-sm">Active</span>
                                 </td>
                                 <td className="p-4 border-b border-slate-700">
-                                    <button 
+                                    <button
                                         onClick={() => handleEditUser(u)}
                                         className="text-blue-400 hover:text-blue-300 text-sm mr-4 inline-flex items-center gap-1"
                                     >
                                         <Edit2 size={14} /> Edit
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={() => {
                                             setSelectedUser(u);
                                             setShowDeleteConfirm(true);
@@ -257,9 +260,9 @@ const UserManagement = () => {
                                 <label className="text-sm font-medium text-slate-300 mb-2 block">Username</label>
                                 <input
                                     type="text"
-                                    disabled
-                                    className="w-full bg-slate-900/50 border border-slate-700 rounded p-3 text-slate-400 cursor-not-allowed"
+                                    className="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white focus:border-blue-500 outline-none"
                                     value={selectedUser.username}
+                                    onChange={e => setSelectedUser({ ...selectedUser, username: e.target.value })}
                                 />
                             </div>
                             <div>
@@ -267,21 +270,28 @@ const UserManagement = () => {
                                 <input
                                     type="email"
                                     disabled
-                                    className="w-full bg-slate-900/50 border border-slate-700 rounded p-3 text-slate-400 cursor-not-allowed"
+                                    className="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white focus:border-blue-500 outline-none"
                                     value={selectedUser.email}
+                                    onChange={e => setSelectedUser({ ...selectedUser, email: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-slate-300 mb-2 block">Phone</label>
+                                <input
+                                    type="text"
+                                    className="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white focus:border-blue-500 outline-none"
+                                    value={selectedUser.phone || ''}
+                                    onChange={e => setSelectedUser({ ...selectedUser, phone: e.target.value })}
                                 />
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-slate-300 mb-2 block">Role</label>
-                                <select
-                                    className="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white focus:border-blue-500 outline-none"
+                                <input
+                                    type="text"
+                                    disabled
+                                    className="w-full bg-slate-900/50 border border-slate-700 rounded p-3 text-slate-400 cursor-not-allowed"
                                     value={selectedUser.role}
-                                    onChange={e => setSelectedUser({ ...selectedUser, role: e.target.value })}
-                                >
-                                    <option value="MECHANIC">Mechanic</option>
-                                    <option value="CUSTOMER">Customer</option>
-                                    <option value="ADMIN">Admin</option>
-                                </select>
+                                />
                             </div>
                             <div className="flex gap-4 mt-6">
                                 <button type="button" onClick={() => setShowEditModal(false)} className="flex-1 bg-slate-700 hover:bg-slate-600 py-3 rounded-lg font-medium">Cancel</button>
@@ -301,13 +311,13 @@ const UserManagement = () => {
                             Are you sure you want to delete <span className="font-semibold">{selectedUser.username}</span>? This action cannot be undone.
                         </p>
                         <div className="flex gap-4">
-                            <button 
-                                onClick={() => setShowDeleteConfirm(false)} 
+                            <button
+                                onClick={() => setShowDeleteConfirm(false)}
                                 className="flex-1 bg-slate-700 hover:bg-slate-600 py-3 rounded-lg font-medium"
                             >
                                 Cancel
                             </button>
-                            <button 
+                            <button
                                 onClick={handleDeleteUser}
                                 className="flex-1 bg-red-600 hover:bg-red-700 py-3 rounded-lg font-medium"
                             >
@@ -320,11 +330,10 @@ const UserManagement = () => {
 
             {/* Toast Notification */}
             {toast.visible && (
-                <div className={`fixed bottom-6 right-6 px-6 py-4 rounded-lg font-medium flex items-center gap-2 z-50 ${
-                    toast.type === 'success' 
-                        ? 'bg-green-600 text-white' 
-                        : 'bg-red-600 text-white'
-                }`}>
+                <div className={`fixed bottom-6 right-6 px-6 py-4 rounded-lg font-medium flex items-center gap-2 z-50 ${toast.type === 'success'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-red-600 text-white'
+                    }`}>
                     <span className={`w-2 h-2 rounded-full ${toast.type === 'success' ? 'bg-green-300' : 'bg-red-300'}`}></span>
                     {toast.message}
                 </div>

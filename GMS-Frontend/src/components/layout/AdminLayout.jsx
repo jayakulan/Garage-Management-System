@@ -29,10 +29,10 @@ const AdminLayout = () => {
                         className="flex items-center gap-3 mb-8 cursor-pointer hover:opacity-80 transition-opacity"
                         onClick={() => navigate('/')}
                     >
-                        <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                            <span className="font-bold text-white">G</span>
+                        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-700">
+                            <img src="/log.jpeg" alt="GMS Logo" className="w-full h-full object-cover" />
                         </div>
-                        <span className="font-bold text-xl text-slate-100">GMS Admin</span>
+                        <span className="font-bold text-xl text-slate-100">Admin</span>
                     </div>
 
                     <nav className="space-y-1">
@@ -43,8 +43,8 @@ const AdminLayout = () => {
                                     key={item.path}
                                     to={item.path}
                                     className={({ isActive }) => `w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive
-                                            ? 'bg-blue-600 text-white'
-                                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
                                         }`}
                                 >
                                     <Icon size={18} /> {item.label}

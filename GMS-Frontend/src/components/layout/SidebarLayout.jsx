@@ -8,8 +8,8 @@ const SidebarLayout = ({ title, user, menuItems, activeTab, onTabChange, onLogou
             <aside className="w-64 bg-slate-950 border-r border-slate-800 flex flex-col">
                 <div className="p-6">
                     <div className="flex items-center gap-3 mb-8">
-                        <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                            <span className="font-bold text-white text-lg">{title ? title.charAt(0) : 'G'}</span>
+                        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-700">
+                            <img src="/log.jpeg" alt="GMS Logo" className="w-full h-full object-cover" />
                         </div>
                         <span className="font-bold text-xl text-slate-100">{title || 'GMS'}</span>
                     </div>
