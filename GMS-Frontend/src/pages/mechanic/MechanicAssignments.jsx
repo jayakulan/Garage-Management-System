@@ -139,6 +139,16 @@ const MechanicAssignments = () => {
                             <p className="text-slate-300 text-sm leading-relaxed">{job.reported_issues}</p>
                         </div>
 
+                        {/* Parts Summary Mini-View */}
+                        <div className="flex justify-between items-center text-sm text-slate-400 bg-slate-900/30 p-3 rounded-lg border border-slate-700/50 mb-6">
+                            <span>
+                                <span className="text-white font-semibold">{job.parts_used?.length || 0}</span> Parts Used
+                            </span>
+                            <span className="font-medium text-green-400">
+                                ₹{job.parts_used?.reduce((sum, item) => sum + Number(item.total_cost || 0), 0).toFixed(2)}
+                            </span>
+                        </div>
+
                         <button
                             onClick={() => { setSelectedJob(job); setNewStatus(job.status); }}
                             className="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-lg font-medium transition-colors"
@@ -189,6 +199,31 @@ const MechanicAssignments = () => {
                                         Update
                                     </button>
                                 </div>
+                            </div>
+
+                            {/* Parts Used List */}
+                            <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-700/50">
+                                <h3 className="text-lg font-semibold mb-4 text-blue-400">Parts Used</h3>
+                                {selectedJob.parts_used && selectedJob.parts_used.length > 0 ? (
+                                    <div className="space-y-2">
+                                        {selectedJob.parts_used.map((partItem, index) => (
+                                            <div key={index} className="flex justify-between items-center bg-slate-800 p-3 rounded-lg border border-slate-700">
+                                                <div>
+                                                    <span className="font-medium text-white">{partItem.part_details?.name || 'Unknown Part'}</span>
+                                                    <span className="text-xs text-slate-400 ml-2">(x{partItem.quantity})</span>
+                                                </div>
+                                                <span className="text-sm font-semibold text-green-400">₹{partItem.total_cost}</span>
+                                            </div>
+                                        ))}
+                                        <div className="flex justify-end pt-2 border-t border-slate-700 mt-2">
+                                            <span className="text-sm font-bold text-slate-300">
+                                                Total Parts Cost: <span className="text-green-400">₹{selectedJob.parts_used.reduce((sum, item) => sum + Number(item.total_cost), 0).toFixed(2)}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-slate-500 italic">No parts added to this job yet.</p>
+                                )}
                             </div>
 
                             {/* Add Parts */}

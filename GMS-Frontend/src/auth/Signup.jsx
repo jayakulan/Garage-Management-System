@@ -19,6 +19,7 @@ const Signup = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [toast, setToast] = useState({ message: '', type: '', visible: false });
+    const [loading, setLoading] = useState(false);
 
     // Validation functions
     const validateUsername = (username) => {
@@ -142,8 +143,8 @@ const Signup = () => {
             {toast.visible && (
                 <div className="fixed top-4 right-4 z-50 animate-in fade-in slide-in-from-top-4">
                     <div className={`p-4 rounded-lg flex items-center gap-3 shadow-lg ${toast.type === 'success'
-                            ? 'bg-green-600 text-white'
-                            : 'bg-red-600 text-white'
+                        ? 'bg-green-600 text-white'
+                        : 'bg-red-600 text-white'
                         }`}>
                         {toast.type === 'success' ? (
                             <Check size={20} />
